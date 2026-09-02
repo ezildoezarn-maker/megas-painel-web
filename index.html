@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel Automático — Megas Express</title>
+<style>
+  :root{
+    --bg:#0d1117;
+    --panel:#161b22;
+    --panel2:#1c2230;
+    --line:#262d3a;
+    --green:#2ecc71;
+    --red:#e74c3c;
+    --amber:#f5a623;
+    --text:#e8ecf1;
+    --sub:#8b96a5;
+    --accent:#3ddc84;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    font-family:'Segoe UI',Roboto,-apple-system,sans-serif;
+    color:var(--text);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    padding:24px 14px 90px;
+  }
+  .wrap{width:100%;max-width:420px;}
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding-bottom:14px;border-bottom:1px solid var(--line);margin-bottom:16px;
+  }
+  .topbar h1{font-size:18px;font-weight:600;}
+  .topbar .tag{font-size:11px;color:var(--sub);}
+
+  .master{
+    background:linear-gradient(160deg,var(--panel2),var(--panel));
+    border:1px solid var(--line);border-radius:16px;padding:18px;
+    display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;
+  }
+  .master .label{font-size:14px;font-weight:600;}
+  .master .sub{font-size:11px;color:var(--sub);margin-top:3px;}
+
+  .switch{
+    width:46px;height:26px;border-radius:14px;background:var(--panel2);
+    position:relative;flex-shrink:0;border:1px solid var(--line);cursor:pointer;
+    transition:background .2s;
+  }
+  .switch::after{
+    content:'';position:absolute;top:2px;left:2px;
+    width:20px;height:20px;border-radius:50%;background:#8b96a5;
+    transition:all .2s;
+  }
+  .switch.on{background:var(--green);border-color:var(--green);}
+  .switch.on::after{left:22px;background:#fff;}
+  .switch.loading{opacity:.5;pointer-events:none;}
+
+  .row-title{font-size:12px;color:var(--sub);margin:4px 2px 8px;}
+
+  .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px;}
+  .stat .num{font-size:20px;font-weight:700;}
+  .stat .lbl{font-size:11px;color:var(--sub);margin-top:2px;}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:8px 14px;}
+  .list-item{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:10px 0;border-bottom:1px solid var(--line);font-size:12px;
+  }
+  .list-item:last-child{border-bottom:none;}
+  .list-item .who{font-weight:600;}
+  .list-item .when{color:var(--sub);font-size:11px;margin-top:1px;}
+  .list-item .val{color:var(--green);font-weight:600;white-space:nowrap;}
+  .empty{color:var(--sub);font-size:12px;text-align:center;padding:16px 0;}
+
+  .refresh-note{font-size:10px;color:var(--sub);text-align:center;margin-top:14px;}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="topbar">
+    <h1>Painel Automático</h1>
+    <span class="tag">Megas Express</span>
+  </div>
+
+  <div class="master">
+    <div>
+      <div class="label">Venda Automática</div>
+      <div class="sub" id="txtStatusAuto">carregando…</div>
+    </div>
+    <div class="switch" id="switchAutoVenda"></div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat"><div class="num" id="txtVendasHoje">—</div><div class="lbl">Vendas hoje</div></div>
+    <div class="stat"><div class="num" id="txtMbHoje">—</div><div class="lbl">MB hoje</div></div>
+    <div class="stat"><div class="num" id="txtSaldoTotal">—</div><div class="lbl">Saldo em carteiras</div></div>
+    <div class="stat"><div class="num" id="txtTelefonesOnline">—</div><div class="lbl">Telefones online</div></div>
+  </div>
+
+  <div class="row-title">Últimos eventos</div>
+  <div class="card">
+    <div id="listEventos"><div class="empty">carregando…</div></div>
+  </div>
+
+  <div class="refresh-note">Atualiza a cada 15s</div>
+</div>
+
+<script>
+/* ============================================================
+   CONFIG — troca isso pela URL real da tua API (Pterodactyl)
+   ============================================================ */
+const API_BASE = ""; // vazio = usa o mesmo domínio (funções proxy da Vercel em /api/...)
+
+/* Endpoints esperados (ajusta os caminhos conforme o teu bot):
+   GET  {API_BASE}/api/status        -> { autoVenda: true/false }
+   POST {API_BASE}/api/auto-venda    -> body: { ligado: true/false }
+   GET  {API_BASE}/api/resumo        -> { vendasHoje, mbHoje, saldoTotal, telefonesOnline, telefonesTotal }
+   GET  {API_BASE}/api/eventos       -> [{ nome, hora, valor }]
+*/
+
+const switchEl = document.getElementById('switchAutoVenda');
+let autoVendaLigado = false;
+
+function renderSwitch(){
+  switchEl.classList.toggle('on', autoVendaLigado);
+  document.getElementById('txtStatusAuto').textContent =
+    autoVendaLigado ? 'Ligado — processando pedidos' : 'Desligado';
+}
+
+switchEl.addEventListener('click', async () => {
+  switchEl.classList.add('loading');
+  const novoEstado = !autoVendaLigado;
+  try {
+    const res = await fetch(`${API_BASE}/api/auto-venda`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ligado: novoEstado })
+    });
+    if (!res.ok) throw new Error('falha ao atualizar');
+    autoVendaLigado = novoEstado;
+  } catch (e) {
+    console.error('Erro ao alternar venda automática:', e);
+    alert('Não consegui atualizar. Confere se a API está online.');
+  } finally {
+    switchEl.classList.remove('loading');
+    renderSwitch();
+  }
+});
+
+async function carregarStatus(){
+  try {
+    const res = await fetch(`${API_BASE}/api/status`);
+    const data = await res.json();
+    autoVendaLigado = !!data.autoVenda;
+    renderSwitch();
+  } catch (e) {
+    document.getElementById('txtStatusAuto').textContent = 'Sem conexão com a API';
+  }
+}
+
+async function carregarResumo(){
+  try {
+    const res = await fetch(`${API_BASE}/api/resumo`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const d = await res.json();
+    document.getElementById('txtVendasHoje').textContent = d.vendasHoje ?? '0';
+    document.getElementById('txtMbHoje').textContent = (d.mbHoje ?? 0) + ' MB';
+    document.getElementById('txtSaldoTotal').textContent = (d.saldoTotal ?? 0) + ' MT';
+    document.getElementById('txtTelefonesOnline').textContent =
+      `${d.telefonesOnline ?? 0}/${d.telefonesTotal ?? 0}`;
+  } catch (e) {
+    document.getElementById('txtVendasHoje').textContent = 'ERRO';
+    document.getElementById('txtMbHoje').textContent = String(e.message || e).slice(0, 30);
+    console.error('Erro ao carregar resumo:', e);
+  }
+}
+
+async function carregarEventos(){
+  const container = document.getElementById('listEventos');
+  try {
+    const res = await fetch(`${API_BASE}/api/eventos`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const eventos = await res.json();
+    if (!eventos || eventos.length === 0){
+      container.innerHTML = '<div class="empty">Nenhum evento ainda</div>';
+      return;
+    }
+    container.innerHTML = eventos.map(ev => `
+      <div class="list-item">
+        <div>
+          <div class="who">${ev.nome ?? '—'}</div>
+          <div class="when">${ev.hora ?? '—'}</div>
+        </div>
+        <div class="val">${ev.valor ?? '—'}</div>
+      </div>
+    `).join('');
+  } catch (e) {
+    container.innerHTML = `<div class="empty">Erro: ${String(e.message || e)}</div>`;
+    console.error('Erro ao carregar eventos:', e);
+  }
+}
+
+function carregarTudo(){
+  carregarStatus();
+  carregarResumo();
+  carregarEventos();
+}
+
+carregarTudo();
+setInterval(carregarTudo, 15000);
+</script>
+
+</body>
+</html>
