@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Telefones & SIMs — Megas Express</title>
+<style>
+  :root{
+    --bg:#0d1117;--panel:#161b22;--panel2:#1c2230;--line:#262d3a;
+    --green:#2ecc71;--red:#e74c3c;--amber:#f5a623;
+    --text:#e8ecf1;--sub:#8b96a5;--accent:#3ddc84;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    background:var(--bg);font-family:'Segoe UI',Roboto,-apple-system,sans-serif;
+    color:var(--text);min-height:100vh;display:flex;justify-content:center;
+    padding:24px 14px 30px;
+  }
+  .wrap{width:100%;max-width:420px;}
+  .topbar{display:flex;align-items:center;justify-content:space-between;
+    padding-bottom:14px;border-bottom:1px solid var(--line);margin-bottom:16px;}
+  .topbar h1{font-size:18px;font-weight:600;}
+  .topbar .tag{font-size:11px;color:var(--sub);}
+
+  .nav{display:flex;gap:8px;margin-bottom:16px;}
+  .nav a{
+    flex:1;text-align:center;font-size:12px;color:var(--sub);
+    background:var(--panel);border:1px solid var(--line);border-radius:10px;
+    padding:8px 0;text-decoration:none;
+  }
+  .nav a.active{color:var(--accent);border-color:var(--accent);}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:6px 14px;margin-bottom:14px;}
+  .phone-item{display:flex;align-items:center;justify-content:space-between;
+    padding:12px 0;border-bottom:1px solid var(--line);}
+  .phone-item:last-child{border-bottom:none;}
+  .phone-item .left{display:flex;align-items:center;gap:10px;}
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--green);flex-shrink:0;}
+  .dot.off{background:var(--red);}
+  .name{font-size:13px;font-weight:600;}
+  .meta{font-size:11px;color:var(--sub);margin-top:2px;}
+  .empty{color:var(--sub);font-size:12px;text-align:center;padding:16px 0;}
+
+  .row-title{font-size:12px;color:var(--sub);margin:4px 2px 8px;}
+  .refresh-note{font-size:10px;color:var(--sub);text-align:center;margin-top:14px;}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="topbar">
+    <h1>Telefones & SIMs</h1>
+    <span class="tag">Megas Express</span>
+  </div>
+
+  <div class="nav">
+    <a href="/index.html">Painel</a>
+    <a href="/telefones.html" class="active">Telefones</a>
+  </div>
+
+  <div class="row-title">Linhas cadastradas</div>
+  <div class="card">
+    <div id="listTelefones"><div class="empty">carregando…</div></div>
+  </div>
+
+  <div class="refresh-note">Atualiza a cada 15s</div>
+</div>
+
+<script>
+const API_BASE = "";
+
+async function carregarTelefones(){
+  const container = document.getElementById('listTelefones');
+  try {
+    const res = await fetch(`${API_BASE}/api/telefones`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const telefones = await res.json();
+    if (!telefones || telefones.length === 0){
+      container.innerHTML = '<div class="empty">Nenhum telefone cadastrado</div>';
+      return;
+    }
+    container.innerHTML = telefones.map(t => `
+      <div class="phone-item">
+        <div class="left">
+          <span class="dot ${t.disponivel ? '' : 'off'}"></span>
+          <div>
+            <div class="name">${t.nome}</div>
+            <div class="meta">
+              SIM ativo: ${t.simAtivo} · SIM1: ${t.sim1MB}MB · SIM2: ${t.sim2MB}MB
+            </div>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  } catch (e) {
+    container.innerHTML = `<div class="empty">Erro: ${String(e.message || e)}</div>`;
+    console.error('Erro ao carregar telefones:', e);
+  }
+}
+
+carregarTelefones();
+setInterval(carregarTelefones, 15000);
+</script>
+
+</body>
+</html>
