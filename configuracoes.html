@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Configurações — Megas Express</title>
+<style>
+  :root{
+    --bg:#0d1117;--panel:#161b22;--panel2:#1c2230;--line:#262d3a;
+    --green:#2ecc71;--red:#e74c3c;--amber:#f5a623;
+    --text:#e8ecf1;--sub:#8b96a5;--accent:#3ddc84;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    background:var(--bg);font-family:'Segoe UI',Roboto,-apple-system,sans-serif;
+    color:var(--text);min-height:100vh;display:flex;justify-content:center;
+    padding:24px 14px 30px;
+  }
+  .wrap{width:100%;max-width:420px;}
+  .topbar{display:flex;align-items:center;justify-content:space-between;
+    padding-bottom:14px;border-bottom:1px solid var(--line);margin-bottom:16px;}
+  .topbar h1{font-size:18px;font-weight:600;}
+  .topbar .tag{font-size:11px;color:var(--sub);}
+
+  .nav{display:flex;gap:8px;margin-bottom:16px;}
+  .nav a{
+    flex:1;text-align:center;font-size:12px;color:var(--sub);
+    background:var(--panel);border:1px solid var(--line);border-radius:10px;
+    padding:8px 0;text-decoration:none;
+  }
+  .nav a.active{color:var(--accent);border-color:var(--accent);}
+
+  .master{
+    background:linear-gradient(160deg,var(--panel2),var(--panel));
+    border:1px solid var(--line);border-radius:16px;padding:18px;
+    display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;
+  }
+  .master .label{font-size:14px;font-weight:600;}
+  .master .sub{font-size:11px;color:var(--sub);margin-top:3px;}
+
+  .switch{
+    width:46px;height:26px;border-radius:14px;background:var(--panel2);
+    position:relative;flex-shrink:0;border:1px solid var(--line);cursor:pointer;
+    transition:background .2s;
+  }
+  .switch::after{
+    content:'';position:absolute;top:2px;left:2px;
+    width:20px;height:20px;border-radius:50%;background:#8b96a5;
+    transition:all .2s;
+  }
+  .switch.on{background:var(--green);border-color:var(--green);}
+  .switch.on::after{left:22px;background:#fff;}
+  .switch.loading{opacity:.5;pointer-events:none;}
+
+  .row-title{font-size:12px;color:var(--sub);margin:4px 2px 8px;}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:14px;}
+  .phone-block{border-bottom:1px solid var(--line);padding:12px 0;}
+  .phone-block:last-child{border-bottom:none;}
+  .phone-block .name{font-size:13px;font-weight:600;margin-bottom:8px;}
+  .limite-row{display:flex;gap:8px;}
+  .limite-field{flex:1;}
+  .limite-field label{font-size:10px;color:var(--sub);display:block;margin-bottom:4px;}
+  .limite-field input{
+    width:100%;background:var(--panel2);border:1px solid var(--line);
+    border-radius:8px;padding:8px 10px;font-size:13px;color:var(--text);
+  }
+  .btn-salvar{
+    background:var(--accent);color:#04120a;text-align:center;font-weight:700;
+    font-size:12px;padding:8px;border-radius:8px;margin-top:8px;cursor:pointer;
+    border:none;width:100%;
+  }
+  .btn-salvar:disabled{opacity:.5;}
+  .save-msg{font-size:11px;margin-top:6px;min-height:14px;}
+  .save-msg.ok{color:var(--green);}
+  .save-msg.erro{color:var(--red);}
+
+  .empty{color:var(--sub);font-size:12px;text-align:center;padding:16px 0;}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="topbar">
+    <h1>Configurações</h1>
+    <span class="tag">Megas Express</span>
+  </div>
+
+  <div class="nav">
+    <a href="/index.html">Painel</a>
+    <a href="/telefones.html">Telefones</a>
+    <a href="/configuracoes.html" class="active">Config</a>
+  </div>
+
+  <div class="master">
+    <div>
+      <div class="label">Venda Automática</div>
+      <div class="sub" id="txtStatusAuto">carregando…</div>
+    </div>
+    <div class="switch" id="switchAutoVenda"></div>
+  </div>
+
+  <div class="row-title">Limite de MB por telefone / SIM</div>
+  <div class="card">
+    <div id="listLimites"><div class="empty">carregando…</div></div>
+  </div>
+</div>
+
+<script>
+const API_BASE = "";
+
+const switchEl = document.getElementById('switchAutoVenda');
+let autoVendaLigado = false;
+
+function renderSwitch(){
+  switchEl.classList.toggle('on', autoVendaLigado);
+  document.getElementById('txtStatusAuto').textContent =
+    autoVendaLigado ? 'Ligado — processando pedidos' : 'Desligado';
+}
+
+switchEl.addEventListener('click', async () => {
+  switchEl.classList.add('loading');
+  const novoEstado = !autoVendaLigado;
+  try {
+    const res = await fetch(`${API_BASE}/api/auto-venda`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ligado: novoEstado })
+    });
+    if (!res.ok) throw new Error('falha ao atualizar');
+    autoVendaLigado = novoEstado;
+  } catch (e) {
+    alert('Não consegui atualizar. Confere se a API está online.');
+  } finally {
+    switchEl.classList.remove('loading');
+    renderSwitch();
+  }
+});
+
+async function carregarConfig(){
+  const container = document.getElementById('listLimites');
+  try {
+    const res = await fetch(`${API_BASE}/api/config`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    autoVendaLigado = !!data.vendaAutomaticaLigada;
+    renderSwitch();
+
+    if (!data.telefones || data.telefones.length === 0){
+      container.innerHTML = '<div class="empty">Nenhum telefone cadastrado</div>';
+      return;
+    }
+
+    container.innerHTML = data.telefones.map(t => `
+      <div class="phone-block" data-id="${t.id}">
+        <div class="name">${t.nome}</div>
+        <div class="limite-row">
+          <div class="limite-field">
+            <label>Limite SIM1 (MB)</label>
+            <input type="number" class="input-sim1" value="${t.limiteSim1}">
+          </div>
+          <div class="limite-field">
+            <label>Limite SIM2 (MB)</label>
+            <input type="number" class="input-sim2" value="${t.limiteSim2}">
+          </div>
+        </div>
+        <button class="btn-salvar">Salvar</button>
+        <div class="save-msg"></div>
+      </div>
+    `).join('');
+
+    container.querySelectorAll('.btn-salvar').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const bloco = btn.closest('.phone-block');
+        const id = bloco.dataset.id;
+        const limiteSim1 = bloco.querySelector('.input-sim1').value;
+        const limiteSim2 = bloco.querySelector('.input-sim2').value;
+        const msg = bloco.querySelector('.save-msg');
+
+        btn.disabled = true;
+        msg.textContent = '';
+        msg.className = 'save-msg';
+        try {
+          const r = await fetch(`${API_BASE}/api/config/limite`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, limiteSim1, limiteSim2 })
+          });
+          if (!r.ok) throw new Error(`HTTP ${r.status}`);
+          msg.textContent = 'Salvo!';
+          msg.classList.add('ok');
+        } catch (e) {
+          msg.textContent = 'Erro ao salvar: ' + String(e.message || e);
+          msg.classList.add('erro');
+        } finally {
+          btn.disabled = false;
+        }
+      });
+    });
+  } catch (e) {
+    container.innerHTML = `<div class="empty">Erro: ${String(e.message || e)}</div>`;
+  }
+}
+
+carregarConfig();
+</script>
+
+</body>
+</html>
