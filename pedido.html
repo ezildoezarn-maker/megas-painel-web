@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Novo Pedido — Megas Express</title>
+<style>
+  :root{
+    --bg:#0d1117;--panel:#161b22;--panel2:#1c2230;--line:#262d3a;
+    --green:#2ecc71;--red:#e74c3c;--amber:#f5a623;
+    --text:#e8ecf1;--sub:#8b96a5;--accent:#3ddc84;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    background:var(--bg);font-family:'Segoe UI',Roboto,-apple-system,sans-serif;
+    color:var(--text);min-height:100vh;display:flex;justify-content:center;
+    padding:24px 14px 30px;
+  }
+  .wrap{width:100%;max-width:420px;}
+  .topbar{display:flex;align-items:center;justify-content:space-between;
+    padding-bottom:14px;border-bottom:1px solid var(--line);margin-bottom:16px;}
+  .topbar h1{font-size:18px;font-weight:600;}
+  .topbar .tag{font-size:11px;color:var(--sub);}
+
+  .nav{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;}
+  .nav a{
+    flex:1;text-align:center;font-size:11px;color:var(--sub);
+    background:var(--panel);border:1px solid var(--line);border-radius:10px;
+    padding:8px 2px;text-decoration:none;min-width:70px;
+  }
+  .nav a.active{color:var(--accent);border-color:var(--accent);}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;}
+  .field{margin-bottom:12px;}
+  .field label{font-size:12px;color:var(--sub);display:block;margin-bottom:5px;}
+  .field input,.field select{
+    width:100%;background:var(--panel2);border:1px solid var(--line);
+    border-radius:10px;padding:10px 12px;font-size:14px;color:var(--text);
+  }
+  .btn-criar{
+    width:100%;background:var(--accent);color:#04120a;text-align:center;
+    font-weight:700;font-size:14px;padding:13px;border-radius:12px;
+    border:none;margin-top:6px;cursor:pointer;
+  }
+  .btn-criar:disabled{opacity:.5;}
+  .msg{font-size:13px;margin-top:12px;text-align:center;}
+  .msg.ok{color:var(--green);}
+  .msg.erro{color:var(--red);}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="topbar">
+    <h1>Novo Pedido</h1>
+    <span class="tag">Manual</span>
+  </div>
+
+  <div class="nav">
+    <a href="/index.html">Painel</a>
+    <a href="/telefones.html">Telefones</a>
+    <a href="/configuracoes.html">Config</a>
+    <a href="/historico.html">Histórico</a>
+    <a href="/pedido.html" class="active">Novo Pedido</a>
+  </div>
+
+  <div class="card">
+    <div class="field">
+      <label>Nome do cliente</label>
+      <input type="text" id="cliente" placeholder="Ex: João">
+    </div>
+    <div class="field">
+      <label>Número (obrigatório)</label>
+      <input type="text" id="numero" placeholder="Ex: 84xxxxxxx">
+    </div>
+    <div class="field">
+      <label>Quantidade de MB (obrigatório)</label>
+      <input type="number" id="quantidadeMB" placeholder="Ex: 1024">
+    </div>
+    <div class="field">
+      <label>Valor em MT (obrigatório)</label>
+      <input type="number" id="valor" placeholder="Ex: 20">
+    </div>
+    <div class="field">
+      <label>Provedor</label>
+      <select id="provedor">
+        <option value="mpesa">Mpesa</option>
+        <option value="emola">eMola</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>PIN</label>
+      <input type="password" id="pin" placeholder="PIN de confirmação">
+    </div>
+
+    <button class="btn-criar" id="btnCriar">Criar pedido</button>
+    <div class="msg" id="msg"></div>
+  </div>
+</div>
+
+<script>
+const API_BASE = "";
+
+document.getElementById('btnCriar').addEventListener('click', async () => {
+  const btn = document.getElementById('btnCriar');
+  const msg = document.getElementById('msg');
+
+  const body = {
+    cliente: document.getElementById('cliente').value,
+    numero: document.getElementById('numero').value,
+    quantidadeMB: document.getElementById('quantidadeMB').value,
+    valor: document.getElementById('valor').value,
+    provedor: document.getElementById('provedor').value,
+    pin: document.getElementById('pin').value,
+  };
+
+  if (!body.numero || !body.quantidadeMB || !body.valor || !body.pin) {
+    msg.textContent = 'Preenche número, MB, valor e PIN.';
+    msg.className = 'msg erro';
+    return;
+  }
+
+  btn.disabled = true;
+  msg.textContent = '';
+  msg.className = 'msg';
+
+  try {
+    const res = await fetch(`${API_BASE}/api/pedido`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.erro || `HTTP ${res.status}`);
+
+    msg.textContent = `Pedido criado! (${data.pedidoId})`;
+    msg.className = 'msg ok';
+    document.getElementById('numero').value = '';
+    document.getElementById('quantidadeMB').value = '';
+    document.getElementById('valor').value = '';
+    document.getElementById('cliente').value = '';
+  } catch (e) {
+    msg.textContent = 'Erro: ' + String(e.message || e);
+    msg.className = 'msg erro';
+  } finally {
+    btn.disabled = false;
+  }
+});
+</script>
+
+</body>
+</html>
