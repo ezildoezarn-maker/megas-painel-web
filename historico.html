@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Histórico — Megas Express</title>
+<style>
+  :root{
+    --bg:#0d1117;--panel:#161b22;--panel2:#1c2230;--line:#262d3a;
+    --green:#2ecc71;--red:#e74c3c;--amber:#f5a623;
+    --text:#e8ecf1;--sub:#8b96a5;--accent:#3ddc84;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    background:var(--bg);font-family:'Segoe UI',Roboto,-apple-system,sans-serif;
+    color:var(--text);min-height:100vh;display:flex;justify-content:center;
+    padding:24px 14px 30px;
+  }
+  .wrap{width:100%;max-width:420px;}
+  .topbar{display:flex;align-items:center;justify-content:space-between;
+    padding-bottom:14px;border-bottom:1px solid var(--line);margin-bottom:16px;}
+  .topbar h1{font-size:18px;font-weight:600;}
+  .topbar .tag{font-size:11px;color:var(--sub);}
+
+  .nav{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;}
+  .nav a{
+    flex:1;text-align:center;font-size:11px;color:var(--sub);
+    background:var(--panel);border:1px solid var(--line);border-radius:10px;
+    padding:8px 2px;text-decoration:none;min-width:70px;
+  }
+  .nav a.active{color:var(--accent);border-color:var(--accent);}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;}
+  .cliente-row{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:12px 14px;border-bottom:1px solid var(--line);cursor:pointer;
+  }
+  .cliente-row:last-child{border-bottom:none;}
+  .cliente-row .nome{font-size:13px;font-weight:600;}
+  .cliente-row .meta{font-size:11px;color:var(--sub);margin-top:2px;}
+  .cliente-row .direita{text-align:right;}
+  .cliente-row .gasto{font-size:13px;font-weight:600;color:var(--green);}
+
+  .detalhe{
+    background:var(--panel2);padding:0 14px;max-height:0;overflow:hidden;
+    transition:max-height .25s ease, padding .25s ease;
+  }
+  .detalhe.aberto{padding:8px 14px 12px;max-height:600px;overflow-y:auto;}
+  .item-compra{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:8px 0;border-bottom:1px solid var(--line);font-size:12px;
+  }
+  .item-compra:last-child{border-bottom:none;}
+  .item-compra .when{color:var(--sub);font-size:11px;}
+  .item-compra .val{color:var(--green);font-weight:600;}
+  .item-compra .val.falha{color:var(--red);}
+
+  .empty{color:var(--sub);font-size:12px;text-align:center;padding:16px 0;}
+  .refresh-note{font-size:10px;color:var(--sub);text-align:center;margin-top:14px;}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="topbar">
+    <h1>Histórico por Cliente</h1>
+    <span class="tag">Megas Express</span>
+  </div>
+
+  <div class="nav">
+    <a href="/index.html">Painel</a>
+    <a href="/telefones.html">Telefones</a>
+    <a href="/configuracoes.html">Config</a>
+    <a href="/historico.html" class="active">Histórico</a>
+    <a href="/pedido.html">Novo Pedido</a>
+  </div>
+
+  <div class="card" id="listClientes">
+    <div class="empty">carregando…</div>
+  </div>
+
+  <div class="refresh-note">Toca num cliente pra ver o histórico completo</div>
+</div>
+
+<script>
+const API_BASE = "";
+const cacheHistorico = {};
+
+async function carregarClientes(){
+  const container = document.getElementById('listClientes');
+  try {
+    const res = await fetch(`${API_BASE}/api/clientes`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const clientes = await res.json();
+
+    if (!clientes || clientes.length === 0){
+      container.innerHTML = '<div class="empty">Nenhum cliente ainda</div>';
+      return;
+    }
+
+    container.innerHTML = clientes.map((c, i) => `
+      <div>
+        <div class="cliente-row" data-numero="${c.numero}" data-idx="${i}">
+          <div>
+            <div class="nome">${c.nome}</div>
+            <div class="meta">${c.totalCompras} compra(s) · última: ${c.ultimaCompra}</div>
+          </div>
+          <div class="direita">
+            <div class="gasto">${c.totalGasto}MT</div>
+          </div>
+        </div>
+        <div class="detalhe" id="detalhe-${i}"></div>
+      </div>
+    `).join('');
+
+    container.querySelectorAll('.cliente-row').forEach(row => {
+      row.addEventListener('click', async () => {
+        const idx = row.dataset.idx;
+        const numero = row.dataset.numero;
+        const painel = document.getElementById(`detalhe-${idx}`);
+        const aberto = painel.classList.contains('aberto');
+
+        document.querySelectorAll('.detalhe.aberto').forEach(d => d.classList.remove('aberto'));
+
+        if (aberto) return;
+
+        painel.innerHTML = '<div class="empty">carregando…</div>';
+        painel.classList.add('aberto');
+
+        if (cacheHistorico[numero]) {
+          renderDetalhe(painel, cacheHistorico[numero]);
+          return;
+        }
+
+        try {
+          const r = await fetch(`${API_BASE}/api/cliente-historico?numero=${encodeURIComponent(numero)}`);
+          if (!r.ok) throw new Error(`HTTP ${r.status}`);
+          const historico = await r.json();
+          cacheHistorico[numero] = historico;
+          renderDetalhe(painel, historico);
+        } catch (e) {
+          painel.innerHTML = `<div class="empty">Erro: ${String(e.message || e)}</div>`;
+        }
+      });
+    });
+  } catch (e) {
+    container.innerHTML = `<div class="empty">Erro: ${String(e.message || e)}</div>`;
+  }
+}
+
+function renderDetalhe(painel, historico){
+  if (!historico || historico.length === 0){
+    painel.innerHTML = '<div class="empty">Sem compras registadas</div>';
+    return;
+  }
+  painel.innerHTML = historico.map(h => `
+    <div class="item-compra">
+      <div class="when">${h.data} · ${h.hora} ${h.mb && h.mb !== '—' ? '· ' + h.mb + 'MB' : ''}</div>
+      <div class="val ${String(h.valor).includes('Falha') ? 'falha' : ''}">${h.valor}</div>
+    </div>
+  `).join('');
+}
+
+carregarClientes();
+</script>
+
+</body>
+</html>
