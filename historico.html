@@ -52,6 +52,8 @@
   }
   .item-compra:last-child{border-bottom:none;}
   .item-compra .when{color:var(--sub);font-size:11px;}
+  .item-compra .when.ok{color:var(--green);font-weight:600;}
+  .item-compra .when.falha{color:var(--red);font-weight:600;}
   .item-compra .val{color:var(--green);font-weight:600;}
   .item-compra .val.falha{color:var(--red);}
 
@@ -100,10 +102,10 @@ async function carregarClientes(){
 
     container.innerHTML = clientes.map((c, i) => `
       <div>
-        <div class="cliente-row" data-numero="${c.numero}" data-idx="${i}">
+        <div class="cliente-row" data-numero="${c.numeroCliente}" data-idx="${i}">
           <div>
             <div class="nome">${c.nome}</div>
-            <div class="meta">${c.totalCompras} compra(s) · última: ${c.ultimaCompra}</div>
+            <div class="meta">${c.numeroCliente} · ${c.totalCompras} compra(s) · última: ${c.ultimaCompra}</div>
           </div>
           <div class="direita">
             <div class="gasto">${c.totalGasto}MT</div>
@@ -155,8 +157,14 @@ function renderDetalhe(painel, historico){
   }
   painel.innerHTML = historico.map(h => `
     <div class="item-compra">
-      <div class="when">${h.data} · ${h.hora} ${h.mb && h.mb !== '—' ? '· ' + h.mb + 'MB' : ''}</div>
-      <div class="val ${String(h.valor).includes('Falha') ? 'falha' : ''}">${h.valor}</div>
+      <div>
+        <div class="when">${h.data} · ${h.hora} ${h.mb && h.mb !== '—' ? '· ' + h.mb + 'MB' : ''}</div>
+        <div class="when">Para: ${h.numeroDestino}</div>
+      </div>
+      <div style="text-align:right;">
+        <div class="val ${h.status === 'Falha' ? 'falha' : ''}">${h.valor}</div>
+        <div class="when ${h.status === 'Falha' ? 'falha' : 'ok'}">${h.status}</div>
+      </div>
     </div>
   `).join('');
 }
