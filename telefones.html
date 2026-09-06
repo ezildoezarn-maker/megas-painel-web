@@ -22,26 +22,69 @@
   .topbar h1{font-size:18px;font-weight:600;}
   .topbar .tag{font-size:11px;color:var(--sub);}
 
-  .nav{display:flex;gap:8px;margin-bottom:16px;}
+  .nav{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;}
   .nav a{
-    flex:1;text-align:center;font-size:12px;color:var(--sub);
+    flex:1;text-align:center;font-size:11px;color:var(--sub);
     background:var(--panel);border:1px solid var(--line);border-radius:10px;
-    padding:8px 0;text-decoration:none;
+    padding:8px 2px;text-decoration:none;min-width:70px;
   }
   .nav a.active{color:var(--accent);border-color:var(--accent);}
 
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:6px 14px;margin-bottom:14px;}
-  .phone-item{display:flex;align-items:center;justify-content:space-between;
-    padding:12px 0;border-bottom:1px solid var(--line);}
-  .phone-item:last-child{border-bottom:none;}
-  .phone-item .left{display:flex;align-items:center;gap:10px;}
-  .dot{width:9px;height:9px;border-radius:50%;background:var(--green);flex-shrink:0;}
-  .dot.off{background:var(--red);}
-  .name{font-size:13px;font-weight:600;}
-  .meta{font-size:11px;color:var(--sub);margin-top:2px;}
-  .empty{color:var(--sub);font-size:12px;text-align:center;padding:16px 0;}
+  .phone-title{font-size:13px;color:var(--sub);margin:16px 2px 8px;}
+  .phone-title:first-of-type{margin-top:0;}
 
-  .row-title{font-size:12px;color:var(--sub);margin:4px 2px 8px;}
+  .sim-card{
+    border-radius:18px;padding:18px;margin-bottom:14px;
+    border:1.5px solid var(--line);
+    background:var(--panel);
+  }
+  .sim-card.ativo{border-color:rgba(46,204,113,.5);box-shadow:0 0 24px rgba(46,204,113,.08);}
+  .sim-card.trocar{border-color:rgba(231,76,60,.6);box-shadow:0 0 24px rgba(231,76,60,.1);}
+
+  .sim-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+  .sim-badge{
+    font-size:11px;font-weight:700;letter-spacing:.5px;
+    padding:4px 10px;border-radius:8px;color:#fff;
+  }
+  .sim-badge.ativo{background:var(--green);}
+  .sim-badge.trocar{background:var(--red);}
+
+  .sim-icon-row{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+  .sim-icon{
+    width:46px;height:46px;border-radius:10px;border:1.5px solid;
+    display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;
+  }
+  .sim-icon.ativo{border-color:var(--green);color:var(--green);}
+  .sim-icon.trocar{border-color:var(--red);color:var(--red);}
+
+  .sim-op{font-size:15px;font-weight:700;}
+  .sim-status{display:flex;align-items:center;gap:5px;font-size:11px;margin-top:2px;}
+  .sim-status .dot{width:7px;height:7px;border-radius:50%;}
+  .sim-status.ativo .dot{background:var(--green);}
+  .sim-status.ativo{color:var(--green);}
+  .sim-status.trocar .dot{background:var(--red);}
+  .sim-status.trocar{color:var(--red);}
+  .sim-num{font-size:11px;color:var(--sub);margin-top:1px;}
+
+  .sim-bottom{display:flex;justify-content:space-between;align-items:center;}
+  .sim-mb-label{font-size:11px;color:var(--sub);margin-bottom:4px;}
+  .sim-mb-value{font-size:26px;font-weight:800;}
+
+  .ring{
+    width:70px;height:70px;border-radius:50%;position:relative;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  }
+  .ring svg{transform:rotate(-90deg);}
+  .ring .pct{position:absolute;font-size:13px;font-weight:700;}
+  .ring-label{font-size:9px;color:var(--sub);text-align:center;margin-top:4px;letter-spacing:.3px;}
+
+  .sim-credito{
+    margin-top:14px;padding-top:12px;border-top:1px solid var(--line);
+    font-size:11px;color:var(--sub);
+  }
+  .sim-credito b{color:var(--text);font-size:13px;}
+
+  .empty{color:var(--sub);font-size:12px;text-align:center;padding:16px 0;}
   .refresh-note{font-size:10px;color:var(--sub);text-align:center;margin-top:14px;}
 </style>
 </head>
@@ -61,48 +104,90 @@
     <a href="/pedido.html">Novo Pedido</a>
   </div>
 
-  <div class="row-title">Linhas cadastradas</div>
-  <div class="card">
-    <div id="listTelefones"><div class="empty">carregando…</div></div>
-  </div>
+  <div id="listTelefones"><div class="empty">carregando…</div></div>
 
-  <div class="refresh-note">Atualiza a cada 15s</div>
+  <div class="refresh-note">Atualiza a cada 30s</div>
 </div>
-  
+
 <script>
 const API_BASE = "";
+
+function ring(percent, statusClass){
+  const pct = Math.max(0, Math.min(100, percent || 0));
+  const r = 28, c = 2 * Math.PI * r;
+  const offset = c - (pct / 100) * c;
+  const color = statusClass === 'trocar' ? 'var(--red)' : 'var(--green)';
+  return `
+    <div class="ring">
+      <svg width="70" height="70">
+        <circle cx="35" cy="35" r="${r}" stroke="#262d3a" stroke-width="6" fill="none"/>
+        <circle cx="35" cy="35" r="${r}" stroke="${color}" stroke-width="6" fill="none"
+          stroke-dasharray="${c}" stroke-dashoffset="${offset}" stroke-linecap="round"/>
+      </svg>
+      <div class="pct">${pct}%</div>
+    </div>
+  `;
+}
+
+function simCard(sim, label){
+  const statusClass = sim.statusCartao === 'trocar_cartao' ? 'trocar' : 'ativo';
+  const statusLabel = sim.statusCartao === 'trocar_cartao' ? 'TROCAR CARTÃO' : 'ATIVO';
+  const percent = sim.limiteMax > 0 ? Math.round((sim.mbAtual / sim.limiteMax) * 100) : (sim.mbAtual > 0 ? 100 : 0);
+
+  return `
+    <div class="sim-card ${statusClass}">
+      <div class="sim-top">
+        <span class="sim-badge ${statusClass}">${label}</span>
+      </div>
+      <div class="sim-icon-row">
+        <div class="sim-icon ${statusClass}">📶</div>
+        <div>
+          <div class="sim-op">${sim.operadora}</div>
+          <div class="sim-status ${statusClass}"><span class="dot"></span>${statusLabel}</div>
+          <div class="sim-num">${sim.numero}</div>
+        </div>
+      </div>
+      <div class="sim-bottom">
+        <div>
+          <div class="sim-mb-label">SALDO ${label}</div>
+          <div class="sim-mb-value">${sim.mbAtual} MB</div>
+        </div>
+        <div style="text-align:center;">
+          ${ring(percent, statusClass)}
+          <div class="ring-label">LIMITE<br>USADO</div>
+        </div>
+      </div>
+      <div class="sim-credito">
+        CRÉDITO ${label} · <b>${sim.creditoMT.toFixed(2)} MT</b>
+      </div>
+    </div>
+  `;
+}
 
 async function carregarTelefones(){
   const container = document.getElementById('listTelefones');
   try {
-    const res = await fetch(`${API_BASE}/api/telefones`);
+    const res = await fetch(`${API_BASE}/api/telefones-status`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const telefones = await res.json();
+
     if (!telefones || telefones.length === 0){
       container.innerHTML = '<div class="empty">Nenhum telefone cadastrado</div>';
       return;
     }
+
     container.innerHTML = telefones.map(t => `
-      <div class="phone-item">
-        <div class="left">
-          <span class="dot ${t.disponivel ? '' : 'off'}"></span>
-          <div>
-            <div class="name">${t.nome}</div>
-            <div class="meta">
-              SIM ativo: ${t.simAtivo} · SIM1: ${t.sim1MB}MB · SIM2: ${t.sim2MB}MB
-            </div>
-          </div>
-        </div>
-      </div>
+      <div class="phone-title">${t.nome}</div>
+      ${simCard(t.sim1, 'SIM 1')}
+      ${simCard(t.sim2, 'SIM 2')}
     `).join('');
   } catch (e) {
     container.innerHTML = `<div class="empty">Erro: ${String(e.message || e)}</div>`;
-    console.error('Erro ao carregar telefones:', e);
   }
 }
 
 carregarTelefones();
-setInterval(carregarTelefones, 15000);
+setInterval(carregarTelefones, 30000);
 </script>
 
 </body>
