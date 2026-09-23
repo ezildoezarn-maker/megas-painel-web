@@ -38,6 +38,15 @@
   .phone-head .nome{font-size:14px;font-weight:700;}
   .phone-head .device{font-size:11px;color:var(--sub);}
 
+  .transfer-row{display:flex;align-items:center;gap:14px;
+    background:var(--panel2);border-radius:12px;padding:12px;margin-bottom:12px;}
+  .ring-mini{position:relative;width:52px;height:52px;flex-shrink:0;}
+  .ring-mini svg{transform:rotate(-90deg);}
+  .ring-mini .num{position:absolute;top:0;left:0;width:100%;height:100%;
+    display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;}
+  .transfer-info .big{font-size:12px;font-weight:600;}
+  .transfer-info .small{font-size:11px;color:var(--sub);margin-top:1px;}
+
   .sim-row{
     display:flex;justify-content:space-between;align-items:center;
     padding:10px 0;border-top:1px solid var(--line);
@@ -79,6 +88,28 @@
 <script>
 const API_BASE = "";
 
+function fmtMB(mb){
+  mb = Number(mb) || 0;
+  if (mb >= 1000) return (mb / 1000).toFixed(2).replace('.', ',') + ' GB';
+  return mb + ' MB';
+}
+
+function ringMini(atual, total){
+  const pct = total > 0 ? Math.min(100, Math.round((atual / total) * 100)) : 0;
+  const r = 22, c = 2 * Math.PI * r;
+  const offset = c - (pct / 100) * c;
+  return `
+    <div class="ring-mini">
+      <svg width="52" height="52">
+        <circle cx="26" cy="26" r="${r}" stroke="#262d3a" stroke-width="5" fill="none"/>
+        <circle cx="26" cy="26" r="${r}" stroke="var(--green)" stroke-width="5" fill="none"
+          stroke-dasharray="${c}" stroke-dashoffset="${offset}" stroke-linecap="round"/>
+      </svg>
+      <div class="num">${atual}</div>
+    </div>
+  `;
+}
+
 function simRow(sim, label){
   const disponivel = !!sim.disponivel;
   return `
@@ -90,7 +121,7 @@ function simRow(sim, label){
           <div class="sim-op">${sim.operadora}</div>
         </div>
       </div>
-      <div class="sim-mb">${sim.mbAtual} MB</div>
+      <div class="sim-mb">${fmtMB(sim.mbAtual)}</div>
     </div>
   `;
 }
@@ -112,6 +143,13 @@ async function carregarTelefones(){
         <div class="phone-head">
           <div class="nome">${t.nome}</div>
           <div class="device">${t.marca} ${t.modelo}</div>
+        </div>
+        <div class="transfer-row">
+          ${ringMini(t.transferenciasHoje, t.limiteDiario)}
+          <div class="transfer-info">
+            <div class="big">${t.transferenciasHoje} de ${t.limiteDiario} transferências hoje</div>
+            <div class="small">${Math.max(0, t.limiteDiario - t.transferenciasHoje)} restantes</div>
+          </div>
         </div>
         ${simRow(t.sim1, 'SIM 1')}
         ${simRow(t.sim2, 'SIM 2')}
