@@ -40,12 +40,15 @@
 
   .transfer-row{display:flex;align-items:center;gap:14px;
     background:var(--panel2);border-radius:12px;padding:12px;margin-bottom:12px;}
-  .ring-mini{position:relative;width:52px;height:52px;flex-shrink:0;}
+  .ring-mini{position:relative;width:40px;height:40px;flex-shrink:0;}
   .ring-mini svg{transform:rotate(-90deg);}
   .ring-mini .num{position:absolute;top:0;left:0;width:100%;height:100%;
-    display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;}
+    display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;}
   .transfer-info .big{font-size:12px;font-weight:600;}
   .transfer-info .small{font-size:11px;color:var(--sub);margin-top:1px;}
+
+  .sim-right{display:flex;align-items:center;gap:8px;}
+  .sim-transf{font-size:10px;color:var(--sub);white-space:nowrap;}
 
   .sim-row{
     display:flex;justify-content:space-between;align-items:center;
@@ -96,13 +99,13 @@ function fmtMB(mb){
 
 function ringMini(atual, total){
   const pct = total > 0 ? Math.min(100, Math.round((atual / total) * 100)) : 0;
-  const r = 22, c = 2 * Math.PI * r;
+  const r = 16, c = 2 * Math.PI * r;
   const offset = c - (pct / 100) * c;
   return `
     <div class="ring-mini">
-      <svg width="52" height="52">
-        <circle cx="26" cy="26" r="${r}" stroke="#262d3a" stroke-width="5" fill="none"/>
-        <circle cx="26" cy="26" r="${r}" stroke="var(--green)" stroke-width="5" fill="none"
+      <svg width="40" height="40">
+        <circle cx="20" cy="20" r="${r}" stroke="#262d3a" stroke-width="4" fill="none"/>
+        <circle cx="20" cy="20" r="${r}" stroke="var(--green)" stroke-width="4" fill="none"
           stroke-dasharray="${c}" stroke-dashoffset="${offset}" stroke-linecap="round"/>
       </svg>
       <div class="num">${atual}</div>
@@ -118,10 +121,13 @@ function simRow(sim, label){
         <span class="dot ${disponivel ? 'on' : 'off'}"></span>
         <div>
           <div class="sim-label">${label}</div>
-          <div class="sim-op">${sim.operadora}</div>
+          <div class="sim-op">${sim.operadora} · ${fmtMB(sim.mbAtual)}</div>
         </div>
       </div>
-      <div class="sim-mb">${fmtMB(sim.mbAtual)}</div>
+      <div class="sim-right">
+        ${ringMini(sim.transferenciasHoje, sim.limiteDiario)}
+        <div class="sim-transf">${sim.transferenciasHoje}/${sim.limiteDiario} hoje</div>
+      </div>
     </div>
   `;
 }
@@ -143,13 +149,6 @@ async function carregarTelefones(){
         <div class="phone-head">
           <div class="nome">${t.nome}</div>
           <div class="device">${t.marca} ${t.modelo}</div>
-        </div>
-        <div class="transfer-row">
-          ${ringMini(t.transferenciasHoje, t.limiteDiario)}
-          <div class="transfer-info">
-            <div class="big">${t.transferenciasHoje} de ${t.limiteDiario} transferências hoje</div>
-            <div class="small">${Math.max(0, t.limiteDiario - t.transferenciasHoje)} restantes</div>
-          </div>
         </div>
         ${simRow(t.sim1, 'SIM 1')}
         ${simRow(t.sim2, 'SIM 2')}
