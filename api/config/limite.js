@@ -1,4 +1,4 @@
-const BOT_URL = "http://project.metahosting.shop:2006";
+const BOT_URL = "http://node.modz.ink:25503";
 
 module.exports = async function handler(req, res) {
   if (req.method !== "POST") {
