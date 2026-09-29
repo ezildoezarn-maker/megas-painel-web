@@ -85,13 +85,113 @@
   .empty{color:var(--sub);font-size:12px;text-align:center;padding:16px 0;}
 
   .refresh-note{font-size:10px;color:var(--sub);text-align:center;margin-top:14px;}
+
+  /* ===== Menu lateral (hambúrguer) ===== */
+  .topbar .left{display:flex;align-items:center;gap:12px;}
+  .menu-btn{
+    width:40px;height:40px;border-radius:12px;flex-shrink:0;
+    background:var(--panel);border:1px solid var(--line);color:var(--text);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+    cursor:pointer;-webkit-tap-highlight-color:transparent;
+  }
+  .menu-btn span{display:block;width:18px;height:2px;border-radius:2px;background:var(--text);}
+  .menu-btn:active{background:var(--panel2);}
+  .menu-btn:focus-visible,.drawer-item:focus-visible,.drawer-close:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+  .drawer-overlay{
+    position:fixed;inset:0;background:rgba(0,0,0,.55);
+    opacity:0;pointer-events:none;transition:opacity .25s;z-index:50;
+  }
+  .drawer-overlay.open{opacity:1;pointer-events:auto;}
+
+  .drawer{
+    position:fixed;top:0;left:0;bottom:0;width:78%;max-width:300px;
+    background:var(--panel);border-right:1px solid var(--line);
+    transform:translateX(-100%);transition:transform .25s ease;z-index:60;
+    display:flex;flex-direction:column;
+    padding:calc(env(safe-area-inset-top,0px) + 20px) 0 calc(env(safe-area-inset-bottom,0px) + 16px);
+  }
+  .drawer.open{transform:translateX(0);}
+  .drawer-head{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:0 18px 16px;border-bottom:1px solid var(--line);margin-bottom:8px;
+  }
+  .drawer-head .name{font-size:16px;font-weight:600;}
+  .drawer-head .name small{display:block;font-size:11px;font-weight:400;color:var(--sub);margin-top:2px;}
+  .drawer-close{
+    width:34px;height:34px;border-radius:10px;border:1px solid var(--line);
+    background:var(--panel2);color:var(--sub);font-size:18px;line-height:1;cursor:pointer;
+  }
+  .drawer-item{
+    display:flex;align-items:center;gap:14px;width:100%;
+    padding:14px 18px;background:none;border:none;color:var(--text);
+    font-size:14px;text-align:left;cursor:pointer;text-decoration:none;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .drawer-item:active{background:var(--panel2);}
+  .drawer-item svg{width:20px;height:20px;flex-shrink:0;stroke:var(--sub);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+  .drawer-foot{margin-top:auto;padding:12px 18px 0;font-size:11px;color:var(--sub);border-top:1px solid var(--line);}
+
+  /* ===== Janelinha "Sobre o app" ===== */
+  .modal-overlay{
+    position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:70;
+    display:none;align-items:center;justify-content:center;padding:20px;
+  }
+  .modal-overlay.open{display:flex;}
+  .modal{
+    width:100%;max-width:340px;background:var(--panel);border:1px solid var(--line);
+    border-radius:16px;padding:20px;
+  }
+  .modal h2{font-size:16px;margin-bottom:8px;}
+  .modal p{font-size:13px;color:var(--sub);line-height:1.5;margin-bottom:6px;}
+  .modal button{
+    margin-top:14px;width:100%;padding:11px;border-radius:12px;border:1px solid var(--accent);
+    background:none;color:var(--accent);font-size:13px;font-weight:600;cursor:pointer;
+  }
+
+  .toast{
+    position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 24px);
+    transform:translateX(-50%) translateY(20px);opacity:0;pointer-events:none;
+    background:var(--panel2);border:1px solid var(--line);color:var(--text);
+    font-size:12px;padding:10px 16px;border-radius:12px;z-index:80;
+    transition:all .25s;max-width:90%;text-align:center;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  /* ===== Barra inferior ===== */
+  .bottom-bar{
+    position:fixed;left:0;right:0;bottom:0;z-index:40;
+    display:flex;justify-content:center;
+    background:var(--panel);border-top:1px solid var(--line);
+    padding:6px 8px calc(env(safe-area-inset-bottom,0px) + 6px);
+  }
+  .bottom-bar .inner{display:flex;width:100%;max-width:420px;}
+  .bb-item{
+    flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+    padding:6px 2px;background:none;border:none;color:var(--sub);
+    font-size:10px;cursor:pointer;border-radius:10px;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .bb-item svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+  .bb-item:active{background:var(--panel2);}
+  .bb-item.active{color:var(--accent);}
+  .bb-item:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;}
+
+  @media (prefers-reduced-motion:reduce){
+    .drawer,.drawer-overlay,.toast{transition:none;}
+  }
 </style>
 </head>
 <body>
 
 <div class="wrap">
   <div class="topbar">
-    <h1>Painel Automático</h1>
+    <div class="left">
+      <button class="menu-btn" id="btnMenu" aria-label="Abrir menu" aria-expanded="false" aria-controls="drawer">
+        <span></span><span></span><span></span>
+      </button>
+      <h1>Painel Automático</h1>
+    </div>
     <span class="tag">Megas Express</span>
   </div>
 
@@ -125,6 +225,64 @@
 
   <div class="refresh-note">Atualiza a cada 15s</div>
 </div>
+
+<!-- Menu lateral -->
+<div class="drawer-overlay" id="drawerOverlay"></div>
+<aside class="drawer" id="drawer" aria-hidden="true" aria-label="Menu">
+  <div class="drawer-head">
+    <div class="name">Megas Express<small>Painel Automático</small></div>
+    <button class="drawer-close" id="btnFechar" aria-label="Fechar menu">✕</button>
+  </div>
+
+  <button class="drawer-item" data-acao="associar">
+    <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.07 0l2.12-2.12a5 5 0 0 0-7.07-7.07L11 4.93"/><path d="M14 11a5 5 0 0 0-7.07 0L4.81 13.12a5 5 0 0 0 7.07 7.07L13 19.07"/></svg>
+    Associar o número
+  </button>
+  <button class="drawer-item" data-acao="contacto">
+    <svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>
+    Fale conosco
+  </button>
+  <button class="drawer-item" data-acao="sobre">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8h.01"/></svg>
+    Sobre o app
+  </button>
+
+  <div class="drawer-foot">Versão <span id="txtVersao"></span></div>
+</aside>
+
+<!-- Janelinha Sobre o app -->
+<div class="modal-overlay" id="modalSobre">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="tituloSobre">
+    <h2 id="tituloSobre">Sobre o app</h2>
+    <p>Painel Automático da Megas Express: controla a venda automática de megas, os telefones e SIMs, o histórico de clientes e os pedidos manuais.</p>
+    <p>Versão <span id="txtVersao2"></span></p>
+    <button id="btnFecharSobre">Fechar</button>
+  </div>
+</div>
+
+<!-- Barra inferior -->
+<nav class="bottom-bar" aria-label="Atalhos">
+  <div class="inner">
+    <button class="bb-item" data-bb="definicoes">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3h0a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5h0a1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8v0a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+      Definições
+    </button>
+    <button class="bb-item" data-bb="velocidade">
+      <svg viewBox="0 0 24 24"><path d="M12 14l4-5"/><path d="M4.9 19a9 9 0 1 1 14.2 0"/></svg>
+      Velocidade
+    </button>
+    <button class="bb-item" data-bb="telefone">
+      <svg viewBox="0 0 24 24"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg>
+      Telefone
+    </button>
+    <button class="bb-item" data-bb="fila">
+      <svg viewBox="0 0 24 24"><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg>
+      Fila
+    </button>
+  </div>
+</nav>
+
+<div class="toast" id="toast"></div>
 
 <script>
 const API_BASE = "";
@@ -210,6 +368,80 @@ async function carregarEventos(){
     console.error('Erro ao carregar eventos:', e);
   }
 }
+
+/* ===== Menu lateral ===== */
+const APP_VERSAO = '1.5';
+// Troca pelo número de WhatsApp de suporte (formato internacional, sem + nem espaços)
+const WHATSAPP_SUPORTE = '258875189774';
+
+const btnMenu = document.getElementById('btnMenu');
+const drawer = document.getElementById('drawer');
+const overlay = document.getElementById('drawerOverlay');
+const modalSobre = document.getElementById('modalSobre');
+const toastEl = document.getElementById('toast');
+
+document.getElementById('txtVersao').textContent = APP_VERSAO;
+document.getElementById('txtVersao2').textContent = APP_VERSAO;
+
+function abrirMenu(){
+  drawer.classList.add('open');
+  overlay.classList.add('open');
+  drawer.setAttribute('aria-hidden','false');
+  btnMenu.setAttribute('aria-expanded','true');
+  document.body.style.overflow = 'hidden';
+}
+function fecharMenu(){
+  drawer.classList.remove('open');
+  overlay.classList.remove('open');
+  drawer.setAttribute('aria-hidden','true');
+  btnMenu.setAttribute('aria-expanded','false');
+  document.body.style.overflow = '';
+}
+function mostrarToast(msg){
+  toastEl.textContent = msg;
+  toastEl.classList.add('show');
+  setTimeout(() => toastEl.classList.remove('show'), 2200);
+}
+
+btnMenu.addEventListener('click', abrirMenu);
+overlay.addEventListener('click', fecharMenu);
+document.getElementById('btnFechar').addEventListener('click', fecharMenu);
+
+document.querySelectorAll('.drawer-item').forEach(item => {
+  item.addEventListener('click', () => {
+    const acao = item.dataset.acao;
+    fecharMenu();
+    if (acao === 'sobre') {
+      modalSobre.classList.add('open');
+    } else if (acao === 'contacto') {
+      window.open(`https://wa.me/${WHATSAPP_SUPORTE}`, '_blank');
+    } else if (acao === 'associar') {
+      mostrarToast('Associar número: em breve');
+    }
+  });
+});
+
+document.getElementById('btnFecharSobre').addEventListener('click', () => modalSobre.classList.remove('open'));
+modalSobre.addEventListener('click', e => { if (e.target === modalSobre) modalSobre.classList.remove('open'); });
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { fecharMenu(); modalSobre.classList.remove('open'); }
+});
+
+/* ===== Barra inferior ===== */
+document.querySelectorAll('.bb-item').forEach(b => {
+  b.addEventListener('click', () => {
+    const a = b.dataset.bb;
+    if (a === 'definicoes') {
+      window.location.href = '/configuracoes.html';
+    } else if (a === 'velocidade') {
+      mostrarToast('Velocidade: em breve');
+    } else if (a === 'telefone') {
+      mostrarToast('Escolher telefone: em breve');
+    } else if (a === 'fila') {
+      mostrarToast('Fila ao vivo: em breve');
+    }
+  });
+});
 
 function carregarTudo(){
   carregarStatus();
