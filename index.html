@@ -177,6 +177,125 @@
   .bb-item.active{color:var(--accent);}
   .bb-item:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;}
 
+  /* ===== Painel deslizante de baixo (Velocidade / Telefone / Fila) ===== */
+  .sheet-overlay{
+    position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:55;
+    opacity:0;pointer-events:none;transition:opacity .25s;
+  }
+  .sheet-overlay.open{opacity:1;pointer-events:auto;}
+  .sheet{
+    position:fixed;left:0;right:0;bottom:0;z-index:65;
+    max-width:420px;margin:0 auto;max-height:75vh;
+    background:var(--panel);border:1px solid var(--line);border-bottom:none;
+    border-radius:18px 18px 0 0;transform:translateY(100%);transition:transform .25s ease;
+    display:flex;flex-direction:column;
+    padding-bottom:calc(env(safe-area-inset-bottom,0px) + 12px);
+  }
+  .sheet.open{transform:translateY(0);}
+  .sheet-head{display:flex;align-items:center;justify-content:space-between;padding:16px 18px 10px;}
+  .sheet-head h2{font-size:15px;font-weight:600;}
+  .sheet-head .sub{font-size:11px;color:var(--sub);margin-top:2px;font-weight:400;}
+  .sheet-body{overflow-y:auto;padding:0 14px 8px;}
+  .opt{
+    display:flex;align-items:center;gap:12px;width:100%;text-align:left;
+    background:var(--panel2);border:1px solid var(--line);border-radius:12px;
+    padding:12px 14px;margin-bottom:8px;color:var(--text);font-size:13px;cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .opt .t{font-weight:600;}
+  .opt .d{font-size:11px;color:var(--sub);margin-top:2px;}
+  .opt .radio{width:18px;height:18px;border-radius:50%;border:2px solid var(--sub);flex-shrink:0;position:relative;}
+  .opt.sel{border-color:var(--accent);}
+  .opt.sel .radio{border-color:var(--accent);}
+  .opt.sel .radio::after{content:'';position:absolute;inset:3px;border-radius:50%;background:var(--accent);}
+  .opt .dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;margin-left:auto;background:var(--red);}
+  .opt .dot.ok{background:var(--green);}
+  .opt:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+  .fila-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);font-size:12px;}
+  .fila-item:last-child{border-bottom:none;}
+  .fila-item .who{font-weight:600;}
+  .fila-item .meta{color:var(--sub);font-size:11px;margin-top:1px;}
+  .badge{font-size:10px;padding:3px 8px;border-radius:8px;white-space:nowrap;border:1px solid var(--line);color:var(--sub);}
+  .badge.env{color:var(--accent);border-color:var(--accent);}
+  .badge.prep{color:var(--amber);border-color:var(--amber);}
+
+  /* ===== Cartão de lucro ===== */
+  .profit{
+    display:block;width:100%;text-align:left;cursor:pointer;color:var(--text);
+    background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    padding:14px;margin-bottom:14px;-webkit-tap-highlight-color:transparent;
+  }
+  .profit:active{background:var(--panel2);}
+  .profit:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+  .profit .top{display:flex;justify-content:space-between;align-items:baseline;}
+  .profit .lbl{font-size:11px;color:var(--sub);}
+  .profit .hint{font-size:10px;color:var(--sub);}
+  .profit .big{font-size:26px;font-weight:700;margin:4px 0 8px;}
+  .profit .big.pos{color:var(--green);}
+  .profit .big.neg{color:var(--red);}
+  .profit .rows{display:flex;gap:16px;font-size:11px;color:var(--sub);}
+  .profit .rows b{display:block;color:var(--text);font-size:13px;font-weight:600;margin-top:1px;}
+  .field{display:block;margin-bottom:12px;}
+  .field span{display:block;font-size:11px;color:var(--sub);margin-bottom:6px;}
+  .field input{
+    width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--line);
+    background:var(--panel2);color:var(--text);font-size:16px;
+  }
+  .field input:focus-visible{outline:2px solid var(--accent);outline-offset:1px;}
+  .btn-main{
+    width:100%;padding:12px;border-radius:12px;border:1px solid var(--accent);
+    background:none;color:var(--accent);font-size:13px;font-weight:600;cursor:pointer;
+  }
+  .btn-main:disabled{opacity:.5;}
+  .pkg{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);}
+  .pkg .info{font-size:13px;font-weight:600;}
+  .pkg .info small{display:block;font-size:11px;font-weight:400;color:var(--sub);margin-top:2px;}
+  .pkg input{width:96px;padding:9px 10px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--text);font-size:15px;text-align:right;}
+  .pkg input:focus-visible{outline:2px solid var(--accent);outline-offset:1px;}
+  .pkg.novo input.mb{width:110px;text-align:left;}
+  .sec{font-size:11px;color:var(--sub);margin:14px 0 4px;}
+  .field textarea{
+    width:100%;min-height:150px;padding:12px 14px;border-radius:12px;border:1px solid var(--line);
+    background:var(--panel2);color:var(--text);font-size:14px;font-family:inherit;resize:vertical;
+  }
+  .field textarea:focus-visible{outline:2px solid var(--accent);outline-offset:1px;}
+  .preview{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:12px 0;font-size:12px;line-height:1.6;}
+  .preview b{font-size:14px;}
+  .preview .warn{color:var(--amber);}
+  details.avancado{margin-top:16px;border-top:1px solid var(--line);padding-top:6px;}
+  details.avancado summary{
+    list-style:none;cursor:pointer;font-size:12px;color:var(--sub);padding:10px 0;
+    display:flex;justify-content:space-between;align-items:center;
+  }
+  details.avancado summary::-webkit-details-marker{display:none;}
+  details.avancado summary::after{content:'▾';}
+  details.avancado[open] summary::after{content:'▴';}
+  .exemplos{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-top:10px;font-size:12px;line-height:1.7;}
+  .exemplos .pos{color:var(--green);}
+  .exemplos .neg{color:var(--red);}
+  button.fila-item{
+    width:100%;background:none;border:none;border-bottom:1px solid var(--line);
+    color:inherit;text-align:left;font-family:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent;
+  }
+  button.fila-item:active{background:var(--panel2);}
+  button.fila-item:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;}
+  .btn-main.danger{border-color:var(--red);color:var(--red);}
+  .btn-main.ghost{border-color:var(--line);color:var(--sub);}
+  .btn-main.armado{background:var(--panel2);}
+  .banner{
+    display:flex;align-items:center;gap:10px;width:100%;text-align:left;cursor:pointer;
+    background:rgba(245,166,35,.12);border:1px solid var(--amber);border-radius:14px;
+    padding:12px 14px;margin-bottom:14px;color:var(--text);font-size:13px;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .banner[hidden]{display:none;}
+  .banner b{display:block;}
+  .banner small{display:block;font-size:11px;color:var(--sub);margin-top:2px;}
+  .banner:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+  .btn-row{display:flex;gap:8px;}
+  .btn-row .btn-main{flex:1;}
+  .note{font-size:11px;color:var(--sub);line-height:1.5;margin-top:10px;}
+
   @media (prefers-reduced-motion:reduce){
     .drawer,.drawer-overlay,.toast{transition:none;}
   }
@@ -211,12 +330,27 @@
     <div class="switch" id="switchAutoVenda"></div>
   </div>
 
+  <button class="banner" id="bannerSaldo" hidden aria-label="Saldo baixo. Toca para ver os detalhes">
+    <span aria-hidden="true">⚠️</span>
+    <span><b>Saldo baixo</b><small id="txtBannerSaldo"></small></span>
+  </button>
+
   <div class="stat-grid">
     <div class="stat"><div class="num" id="txtVendasHoje">—</div><div class="lbl">Vendas hoje</div></div>
     <div class="stat"><div class="num" id="txtMbHoje">—</div><div class="lbl">MB hoje</div></div>
     <div class="stat"><div class="num" id="txtSaldoTotal">—</div><div class="lbl">Saldo em carteiras</div></div>
     <div class="stat"><div class="num" id="txtTelefonesOnline">—</div><div class="lbl">Telefones online</div></div>
   </div>
+
+  <button class="profit" id="btnLucro" aria-label="Lucro de hoje. Toca para definir o custo">
+    <div class="top"><span class="lbl">Lucro hoje</span><span class="hint" id="txtLucroHint">toca para ajustar</span></div>
+    <div class="big" id="txtLucro">—</div>
+    <div class="rows">
+      <div>Vendido<b id="txtLucroVendido">—</b></div>
+      <div>Custo<b id="txtLucroCusto">—</b></div>
+      <div>Margem<b id="txtLucroMargem">—</b></div>
+    </div>
+  </button>
 
   <div class="row-title">Últimos eventos</div>
   <div class="card">
@@ -234,6 +368,18 @@
     <button class="drawer-close" id="btnFechar" aria-label="Fechar menu">✕</button>
   </div>
 
+  <button class="drawer-item" data-acao="tabela">
+    <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18"/><path d="M9 10v10"/></svg>
+    Tabela de preços
+  </button>
+  <button class="drawer-item" data-acao="alertas">
+    <svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+    Alerta de saldo
+  </button>
+  <button class="drawer-item" data-acao="notificacoes">
+    <svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/><path d="M4 2C2.8 3.7 2 5.7 2 8"/><path d="M22 8c0-2.3-.8-4.3-2-6"/></svg>
+    Notificações
+  </button>
   <button class="drawer-item" data-acao="associar">
     <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.07 0l2.12-2.12a5 5 0 0 0-7.07-7.07L11 4.93"/><path d="M14 11a5 5 0 0 0-7.07 0L4.81 13.12a5 5 0 0 0 7.07 7.07L13 19.07"/></svg>
     Associar o número
@@ -281,6 +427,15 @@
     </button>
   </div>
 </nav>
+
+<div class="sheet-overlay" id="sheetOverlay"></div>
+<section class="sheet" id="sheet" aria-hidden="true" role="dialog" aria-labelledby="sheetTitulo">
+  <div class="sheet-head">
+    <div><h2 id="sheetTitulo"></h2><div class="sub" id="sheetSub"></div></div>
+    <button class="drawer-close" id="btnFecharSheet" aria-label="Fechar">✕</button>
+  </div>
+  <div class="sheet-body" id="sheetBody"></div>
+</section>
 
 <div class="toast" id="toast"></div>
 
@@ -411,7 +566,13 @@ document.querySelectorAll('.drawer-item').forEach(item => {
   item.addEventListener('click', () => {
     const acao = item.dataset.acao;
     fecharMenu();
-    if (acao === 'sobre') {
+    if (acao === 'tabela') {
+      abrirTabela();
+    } else if (acao === 'alertas') {
+      abrirAlertas();
+    } else if (acao === 'notificacoes') {
+      abrirNotificacoes();
+    } else if (acao === 'sobre') {
       modalSobre.classList.add('open');
     } else if (acao === 'contacto') {
       window.open(`https://wa.me/${WHATSAPP_SUPORTE}`, '_blank');
@@ -427,26 +588,692 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape') { fecharMenu(); modalSobre.classList.remove('open'); }
 });
 
-/* ===== Barra inferior ===== */
+/* ===== Barra inferior + painel deslizante ===== */
+const sheet = document.getElementById('sheet');
+const sheetOverlay = document.getElementById('sheetOverlay');
+const sheetBody = document.getElementById('sheetBody');
+let sheetAtual = null;
+let filaTimer = null;
+
+function esc(v){
+  return String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function marcarBarra(tipo){
+  document.querySelectorAll('.bb-item').forEach(b => b.classList.toggle('active', b.dataset.bb === tipo));
+}
+
+function fecharSheet(){
+  sheet.classList.remove('open');
+  sheetOverlay.classList.remove('open');
+  sheet.setAttribute('aria-hidden','true');
+  sheetAtual = null;
+  clearInterval(filaTimer);
+  filaTimer = null;
+  marcarBarra(null);
+}
+
+function abrirSheet(tipo, titulo, sub){
+  sheetAtual = tipo;
+  document.getElementById('sheetTitulo').textContent = titulo;
+  document.getElementById('sheetSub').textContent = sub || '';
+  sheetBody.innerHTML = '<div class="empty">carregando…</div>';
+  sheet.classList.add('open');
+  sheetOverlay.classList.add('open');
+  sheet.setAttribute('aria-hidden','false');
+  marcarBarra(tipo);
+}
+
+async function postDisparo(corpo){
+  const res = await fetch(`${API_BASE}/api/disparo`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(corpo)
+  });
+  const data = await res.json();
+  if (!res.ok || data.erro) throw new Error(data.erro || `HTTP ${res.status}`);
+  return data;
+}
+
+/* ---- Velocidade ---- */
+const VELOCIDADES = [
+  { seg: 0,  nome: 'Rápida', desc: 'Sem pausa entre envios' },
+  { seg: 5,  nome: 'Normal', desc: '5 segundos entre envios' },
+  { seg: 15, nome: 'Lenta',  desc: '15 segundos entre envios' }
+];
+
+async function abrirVelocidade(){
+  abrirSheet('velocidade', 'Velocidade de envio', 'Pausa entre um envio e o seguinte');
+  try {
+    const res = await fetch(`${API_BASE}/api/disparo`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const d = await res.json();
+    renderVelocidade(Number(d.pausaEnvios) || 0);
+  } catch (e) {
+    sheetBody.innerHTML = `<div class="empty">Erro: ${esc(e.message || e)}</div>`;
+  }
+}
+
+function renderVelocidade(atual){
+  const conhecida = VELOCIDADES.some(v => v.seg === atual);
+  sheetBody.innerHTML = VELOCIDADES.map(v => `
+    <button class="opt ${v.seg === atual ? 'sel' : ''}" data-seg="${v.seg}">
+      <span class="radio"></span>
+      <span><div class="t">${v.nome}</div><div class="d">${v.desc}</div></span>
+    </button>`).join('') +
+    (conhecida ? '' : `<div class="empty">Valor atual: ${atual} s (definido fora do painel)</div>`);
+
+  sheetBody.querySelectorAll('.opt').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const seg = Number(btn.dataset.seg);
+      try {
+        const r = await postDisparo({ pausaEnvios: seg });
+        renderVelocidade(Number(r.pausaEnvios) || 0);
+        mostrarToast('Velocidade atualizada');
+      } catch (e) {
+        mostrarToast('Não consegui guardar: ' + (e.message || e));
+      }
+    });
+  });
+}
+
+/* ---- Escolher telefone ---- */
+async function abrirTelefone(){
+  abrirSheet('telefone', 'Telefone para disparar', 'O bot fica no escolhido até ele esgotar; depois passa ao próximo');
+  try {
+    const res = await fetch(`${API_BASE}/api/disparo`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    renderTelefone(await res.json());
+  } catch (e) {
+    sheetBody.innerHTML = `<div class="empty">Erro: ${esc(e.message || e)}</div>`;
+  }
+}
+
+function renderTelefone(d){
+  const ativo = d.telefoneAtivo || 1;
+  sheetBody.innerHTML = (d.telefones || []).map(t => `
+    <button class="opt ${t.id === ativo ? 'sel' : ''}" data-id="${t.id}">
+      <span class="radio"></span>
+      <span><div class="t">${esc(t.nome)}</div><div class="d">${t.disponivel ? 'Disponível' : 'Sem megas ou limite'}</div></span>
+      <span class="dot ${t.disponivel ? 'ok' : ''}"></span>
+    </button>`).join('');
+
+  sheetBody.querySelectorAll('.opt').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const id = Number(btn.dataset.id);
+      try {
+        const r = await postDisparo({ telefoneAtivo: id });
+        d.telefoneAtivo = r.telefoneAtivo;
+        renderTelefone(d);
+        mostrarToast(`Disparo pelo Telefone ${id}`);
+      } catch (e) {
+        mostrarToast('Não consegui guardar: ' + (e.message || e));
+      }
+    });
+  });
+}
+
+/* ---- Fila ao vivo ---- */
+const ROTULO_FILA = {
+  pendente:    { txt: 'Na fila',    cls: '' },
+  processando: { txt: 'A preparar', cls: 'prep' },
+  processado:  { txt: 'A enviar',   cls: 'env' }
+};
+
+let ultimaFila = [];
+
+async function carregarFila(){
+  try {
+    const res = await fetch(`${API_BASE}/api/fila`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const fila = await res.json();
+    if (sheetAtual !== 'fila') return;
+    ultimaFila = fila;
+    if (!fila.length) {
+      sheetBody.innerHTML = '<div class="empty">Nenhum envio na fila</div>';
+      return;
+    }
+    sheetBody.innerHTML = '<div class="card">' + fila.map((p, i) => {
+      const st = ROTULO_FILA[p.status] || { txt: p.status, cls: '' };
+      const onde = p.telefone ? ` · Tel ${esc(p.telefone)}${p.sim ? ' ' + esc(p.sim) : ''}` : '';
+      return `
+        <button class="fila-item" data-i="${i}">
+          <div>
+            <div class="who">${esc(p.nome)}</div>
+            <div class="meta">${esc(p.mb)} MB · ${esc(p.valor)} MT · ${esc(p.hora)}${onde}</div>
+          </div>
+          <span class="badge ${st.cls}">${st.txt}</span>
+        </button>`;
+    }).join('') + '</div>';
+    sheetBody.querySelectorAll('.fila-item').forEach(btn => {
+      btn.addEventListener('click', () => verPedido(ultimaFila[Number(btn.dataset.i)]));
+    });
+  } catch (e) {
+    if (sheetAtual === 'fila') sheetBody.innerHTML = `<div class="empty">Erro: ${esc(e.message || e)}</div>`;
+  }
+}
+
+function mostrarFila(){
+  sheetAtual = 'fila';
+  document.getElementById('sheetTitulo').textContent = 'Fila de envios';
+  document.getElementById('sheetSub').textContent = 'Atualiza a cada 5 segundos · toca num pedido para gerir';
+  carregarFila();
+}
+
+function abrirFila(){
+  abrirSheet('fila', 'Fila de envios', 'Atualiza a cada 5 segundos · toca num pedido para gerir');
+  clearInterval(filaTimer);
+  carregarFila();
+  filaTimer = setInterval(carregarFila, 5000);
+}
+
+/* Botão que pede um segundo toque para confirmar */
+function comConfirmacao(btn, rotuloConfirmar, acao){
+  const rotuloOriginal = btn.textContent;
+  let armado = false, t = null;
+  btn.addEventListener('click', () => {
+    if (!armado) {
+      armado = true;
+      btn.textContent = rotuloConfirmar;
+      btn.classList.add('armado');
+      t = setTimeout(() => { armado = false; btn.textContent = rotuloOriginal; btn.classList.remove('armado'); }, 4000);
+      return;
+    }
+    clearTimeout(t);
+    armado = false;
+    btn.classList.remove('armado');
+    btn.textContent = rotuloOriginal;
+    acao();
+  });
+}
+
+function verPedido(p){
+  if (!p) return;
+  sheetAtual = 'fila-detalhe';
+  const st = ROTULO_FILA[p.status] || { txt: p.status };
+  document.getElementById('sheetTitulo').textContent = 'Pedido';
+  document.getElementById('sheetSub').textContent = p.pedidoId;
+  const podeReabrir = p.status !== 'pendente';
+  const espera = (p.status === 'processado' && p.processadoHa !== null && p.processadoHa < 60)
+    ? `<p class="note warn" style="color:var(--amber)">Enviado ao telefone há ${esc(p.processadoHa)} s. Espera 1 minuto antes de reabrir.</p>` : '';
+
+  sheetBody.innerHTML = `
+    <div class="preview">
+      <b>${esc(p.nome)}</b><br>
+      Número: ${esc(p.numero)}<br>
+      ${esc(p.mb)} MB · ${esc(p.valor)} MT<br>
+      Estado: ${esc(st.txt)}${p.telefone ? ' · Tel ' + esc(p.telefone) + (p.sim ? ' ' + esc(p.sim) : '') : ''}
+    </div>
+    ${espera}
+    <label class="field">
+      <span>PIN</span>
+      <input id="inpPinAcao" type="password" inputmode="numeric" autocomplete="off" placeholder="PIN" aria-label="PIN">
+    </label>
+    <div class="btn-row">
+      ${podeReabrir ? '<button class="btn-main" id="btnReabrir">Reabrir</button>' : ''}
+      <button class="btn-main danger" id="btnCancelarPedido">Cancelar pedido</button>
+    </div>
+    <p class="note"><b>Reabrir</b> põe o pedido outra vez na fila. Só uses se o envio realmente falhou: se o telefone já enviou os megas, o cliente recebe duas vezes.</p>
+    <p class="note"><b>Cancelar</b> tira o pedido da fila. Não avisa o cliente nem devolve o dinheiro, isso tens de fazer à parte.</p>
+    <button class="btn-main ghost" id="btnVoltarFila" style="margin-top:12px">Voltar à fila</button>`;
+
+  const executar = async (acao) => {
+    const pin = document.getElementById('inpPinAcao').value;
+    if (!pin) { mostrarToast('Escreve o PIN'); return; }
+    try {
+      const res = await fetch(`${API_BASE}/api/fila-acao`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pedidoId: p.pedidoId, acao, pin })
+      });
+      const data = await res.json();
+      if (!res.ok || data.erro) throw new Error(data.erro || `HTTP ${res.status}`);
+      mostrarToast(acao === 'reabrir' ? 'Pedido reaberto' : 'Pedido cancelado');
+      mostrarFila();
+      carregarResumo();
+    } catch (e) {
+      mostrarToast(e.message || String(e));
+    }
+  };
+
+  const btnReabrir = document.getElementById('btnReabrir');
+  if (btnReabrir) comConfirmacao(btnReabrir, 'Toca de novo para reabrir', () => executar('reabrir'));
+  comConfirmacao(document.getElementById('btnCancelarPedido'), 'Toca de novo para cancelar', () => executar('cancelar'));
+  document.getElementById('btnVoltarFila').addEventListener('click', mostrarFila);
+}
+
+document.getElementById('btnFecharSheet').addEventListener('click', fecharSheet);
+sheetOverlay.addEventListener('click', fecharSheet);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') fecharSheet(); });
+
 document.querySelectorAll('.bb-item').forEach(b => {
   b.addEventListener('click', () => {
     const a = b.dataset.bb;
+    if (a === sheetAtual) { fecharSheet(); return; }
     if (a === 'definicoes') {
       window.location.href = '/configuracoes.html';
     } else if (a === 'velocidade') {
-      mostrarToast('Velocidade: em breve');
+      abrirVelocidade();
     } else if (a === 'telefone') {
-      mostrarToast('Escolher telefone: em breve');
+      abrirTelefone();
     } else if (a === 'fila') {
-      mostrarToast('Fila ao vivo: em breve');
+      abrirFila();
     }
   });
 });
+
+/* ===== Lucro do dia ===== */
+const fmtMT = n => (Number(n) || 0).toLocaleString('pt-MZ', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + ' MT';
+let ultimoLucro = null;
+
+async function carregarLucro(){
+  try {
+    const res = await fetch(`${API_BASE}/api/lucro`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const d = await res.json();
+    ultimoLucro = d;
+    const big = document.getElementById('txtLucro');
+    const hint = document.getElementById('txtLucroHint');
+    document.getElementById('txtLucroVendido').textContent = fmtMT(d.vendido);
+    if (!d.temCustos) {
+      big.textContent = '—';
+      big.className = 'big';
+      hint.textContent = 'define os custos dos pacotes';
+      document.getElementById('txtLucroCusto').textContent = '—';
+      document.getElementById('txtLucroMargem').textContent = '—';
+      return;
+    }
+    big.textContent = fmtMT(d.lucro);
+    big.className = 'big ' + (d.lucro >= 0 ? 'pos' : 'neg');
+    hint.textContent = d.semCusto > 0 ? `${d.semCusto} venda(s) sem custo` : 'toca para ajustar';
+    document.getElementById('txtLucroCusto').textContent = fmtMT(d.custo);
+    document.getElementById('txtLucroMargem').textContent = d.margem + '%';
+  } catch (e) {
+    document.getElementById('txtLucro').textContent = 'ERRO';
+    console.error('Erro ao carregar lucro:', e);
+  }
+}
+
+function abrirLucro(){
+  abrirSheet('lucro', 'Custo dos megas', 'O painel calcula o lucro sozinho a partir da tabela');
+  const d = ultimoLucro || { pacotes: [], custoPorGB: 0, tabela: [] };
+  const tabela = d.tabela || [];
+
+  // Até 3 pacotes da tabela para mostrar o cálculo automático
+  const exemplos = [];
+  if (tabela.length) {
+    [0.15, 0.5, 0.85].forEach(q => {
+      const p = tabela[Math.min(tabela.length - 1, Math.floor(q * tabela.length))];
+      if (p && !exemplos.includes(p)) exemplos.push(p);
+    });
+  }
+
+  const linhas = (d.pacotes || []).map(p => {
+    const sub = p.vendas
+      ? `${esc(p.vendas)} venda(s)${p.valor ? ' · ' + esc(p.valor) + ' MT' : ''}`
+      : (p.valor ? 'tabela: ' + esc(p.valor) + ' MT' : 'sem vendas');
+    return `
+    <div class="pkg">
+      <div class="info">${esc(p.mb)} MB<small>${sub}</small></div>
+      <input class="custo-pkg" data-mb="${esc(p.mb)}" type="number" inputmode="decimal" min="0" step="0.01"
+             value="${p.custo ?? ''}" placeholder="custo MT" aria-label="Custo do pacote de ${esc(p.mb)} MB em MT">
+    </div>`;
+  }).join('');
+
+  const aviso = tabela.length
+    ? ''
+    : '<p class="note" style="margin:0 0 10px">Ainda não guardaste a tabela de preços (menu → Tabela de preços). Sem ela, o painel só calcula com os MB que cada venda já traz.</p>';
+
+  sheetBody.innerHTML = `
+    ${aviso}
+    <div class="sec">Quanto pagas por 1 GB?</div>
+    <div class="pkg">
+      <div class="info">Custo por GB<small>1 GB = 1024 MB, vale para todos os pacotes</small></div>
+      <input id="inpCustoGB" type="number" inputmode="decimal" min="0" step="0.01" value="${d.custoPorGB || ''}" placeholder="MT" aria-label="Custo por GB em MT">
+    </div>
+    <div class="exemplos" id="boxExemplos" ${exemplos.length ? '' : 'hidden'}></div>
+    <button class="btn-main" id="btnGuardarCusto" style="margin-top:14px">Guardar</button>
+    <p class="note">Para cada venda, o painel vê quantos MB ela tem e calcula MB ÷ 1024 × custo por GB. Lucro = vendido − custo, só das vendas finalizadas hoje.</p>
+
+    <details class="avancado">
+      <summary>Avançado: custo diferente para um pacote específico</summary>
+      <p class="note" style="margin:0 0 6px">Só preenche se algum pacote não segue o custo por GB. O ajuste tem prioridade. Vazio = usa o custo por GB.</p>
+      ${linhas || '<div class="empty">Nenhum pacote vendido ainda.</div>'}
+      <div class="sec">Adicionar outro pacote</div>
+      <div class="pkg novo">
+        <input class="mb" id="inpNovoMb" type="number" inputmode="numeric" min="1" step="1" placeholder="MB" aria-label="MB do novo pacote">
+        <input id="inpNovoCusto" type="number" inputmode="decimal" min="0" step="0.01" placeholder="custo MT" aria-label="Custo do novo pacote em MT">
+      </div>
+    </details>`;
+
+  const inpGB = document.getElementById('inpCustoGB');
+  const box = document.getElementById('boxExemplos');
+  const atualizarExemplos = () => {
+    if (!exemplos.length) return;
+    const gb = Number(inpGB.value);
+    if (!(gb > 0)) {
+      box.innerHTML = 'Escreve o custo por GB e vês aqui o lucro de alguns pacotes da tua tabela.';
+      return;
+    }
+    box.innerHTML = '<b>Exemplos com a tua tabela</b><br>' + exemplos.map(p => {
+      const custo = p.mb / 1024 * gb;
+      const lucro = p.preco - custo;
+      return `${esc(p.mb)} MB ➜ vendes ${esc(p.preco)} MT · custo ${custo.toFixed(2)} MT · <span class="${lucro >= 0 ? 'pos' : 'neg'}">lucro ${lucro.toFixed(2)} MT</span>`;
+    }).join('<br>');
+  };
+  inpGB.addEventListener('input', atualizarExemplos);
+  atualizarExemplos();
+
+  document.getElementById('btnGuardarCusto').addEventListener('click', async () => {
+    const btn = document.getElementById('btnGuardarCusto');
+    const custosPacotes = {};
+    sheetBody.querySelectorAll('.custo-pkg').forEach(inp => {
+      custosPacotes[inp.dataset.mb] = inp.value === '' ? null : Number(inp.value);
+    });
+    const novoMb = document.getElementById('inpNovoMb').value;
+    const novoCusto = document.getElementById('inpNovoCusto').value;
+    if (novoMb !== '' || novoCusto !== '') {
+      if (novoMb === '' || novoCusto === '' || !(Number(novoMb) > 0) || !(Number(novoCusto) >= 0)) {
+        mostrarToast('Preenche MB e custo do novo pacote');
+        return;
+      }
+      custosPacotes[String(parseInt(novoMb, 10))] = Number(novoCusto);
+    }
+    for (const v of Object.values(custosPacotes)) {
+      if (v !== null && (!Number.isFinite(v) || v < 0)) { mostrarToast('Há um valor inválido'); return; }
+    }
+    const gb = inpGB.value;
+    btn.disabled = true;
+    try {
+      const res = await fetch(`${API_BASE}/api/lucro`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ custosPacotes, custoPorGB: gb === '' ? 0 : Number(gb) })
+      });
+      const data = await res.json();
+      if (!res.ok || data.erro) throw new Error(data.erro || `HTTP ${res.status}`);
+      mostrarToast('Custos guardados');
+      fecharSheet();
+      carregarLucro();
+    } catch (e) {
+      mostrarToast('Não consegui guardar: ' + (e.message || e));
+      btn.disabled = false;
+    }
+  });
+}
+document.getElementById('btnLucro').addEventListener('click', abrirLucro);
+
+/* ===== Tabela de preços (colar do WhatsApp) ===== */
+function lerTabela(texto){
+  const mapa = new Map();
+  let ignoradas = 0, conflitos = 0;
+  for (const linha of String(texto).split(/\r?\n/)) {
+    const m = linha.match(/(\d+)\s*MB[^\d\n]{0,8}?(\d+(?:[.,]\d+)?)\s*MT/i);
+    if (m) {
+      const mb = parseInt(m[1], 10);
+      const preco = Number(m[2].replace(',', '.'));
+      if (mb > 0 && preco > 0) {
+        if (mapa.has(mb) && mapa.get(mb) !== preco) conflitos++;
+        mapa.set(mb, preco);
+        continue;
+      }
+    }
+    if (/\d\s*MB/i.test(linha)) ignoradas++;
+  }
+  const pacotes = [...mapa.entries()].map(([mb, preco]) => ({ mb, preco })).sort((a, b) => a.mb - b.mb);
+  let foraDeOrdem = 0;
+  for (let i = 1; i < pacotes.length; i++) if (pacotes[i].preco < pacotes[i - 1].preco) foraDeOrdem++;
+  const t = String(texto).match(/total\s*:?\s*(\d+)\s*pacotes/i);
+  return { pacotes, ignoradas, conflitos, foraDeOrdem, declarado: t ? parseInt(t[1], 10) : null };
+}
+
+async function abrirTabela(){
+  abrirSheet('tabela', 'Tabela de preços', 'Cola a tabela do WhatsApp e o painel lê sozinho');
+  let guardada = null;
+  try {
+    const res = await fetch(`${API_BASE}/api/tabela`);
+    if (res.ok) guardada = await res.json();
+  } catch (e) { /* segue sem o resumo da tabela guardada */ }
+
+  const resumo = guardada && guardada.total
+    ? `Tabela guardada: <b>${esc(guardada.total)} pacotes</b> (${esc(guardada.pacotes[0].mb)} MB a ${esc(guardada.pacotes[guardada.pacotes.length - 1].mb)} MB). Colar outra substitui esta.`
+    : 'Ainda não há tabela guardada.';
+
+  sheetBody.innerHTML = `
+    <p class="note" style="margin:0 0 10px">${resumo}</p>
+    <label class="field">
+      <span>Cola aqui a tabela (linhas como "📱 150MB ➜ 4MT")</span>
+      <textarea id="txtTabela" placeholder="Cola aqui…" aria-label="Tabela de preços"></textarea>
+    </label>
+    <div id="prevTabela"></div>
+    <div class="btn-row">
+      <button class="btn-main" id="btnLerTabela">Ler tabela</button>
+      <button class="btn-main" id="btnGuardarTabela" disabled>Guardar</button>
+    </div>`;
+
+  let lida = null;
+  const prev = document.getElementById('prevTabela');
+  const btnGuardar = document.getElementById('btnGuardarTabela');
+
+  document.getElementById('btnLerTabela').addEventListener('click', () => {
+    lida = lerTabela(document.getElementById('txtTabela').value);
+    btnGuardar.disabled = lida.pacotes.length === 0;
+    if (!lida.pacotes.length) {
+      prev.innerHTML = '<div class="preview warn">Não encontrei nenhum pacote. Confirma se as linhas têm o formato 150MB ➜ 4MT.</div>';
+      return;
+    }
+    const p = lida.pacotes;
+    const avisos = [];
+    if (lida.declarado !== null && lida.declarado !== p.length) avisos.push(`A tabela diz ${lida.declarado} pacotes, mas li ${p.length}.`);
+    if (lida.ignoradas) avisos.push(`${lida.ignoradas} linha(s) com MB não foram lidas.`);
+    if (lida.conflitos) avisos.push(`${lida.conflitos} pacote(s) repetido(s) com preços diferentes (vale o último).`);
+    prev.innerHTML = `<div class="preview"><b>${p.length} pacotes lidos</b><br>
+      ${esc(p[0].mb)} MB → ${esc(p[0].preco)} MT &nbsp;…&nbsp; ${esc(p[p.length - 1].mb)} MB → ${esc(p[p.length - 1].preco)} MT
+      ${lida.foraDeOrdem ? `<br><span class="sub">${lida.foraDeOrdem} pacote(s) com preço fora da ordem (pode ser normal).</span>` : ''}
+      ${avisos.map(a => `<br><span class="warn">${esc(a)}</span>`).join('')}</div>`;
+  });
+
+  btnGuardar.addEventListener('click', async () => {
+    if (!lida || !lida.pacotes.length) return;
+    btnGuardar.disabled = true;
+    try {
+      const res = await fetch(`${API_BASE}/api/tabela`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pacotes: lida.pacotes })
+      });
+      const data = await res.json();
+      if (!res.ok || data.erro) throw new Error(data.erro || `HTTP ${res.status}`);
+      mostrarToast(`Tabela guardada: ${data.total} pacotes`);
+      fecharSheet();
+      carregarLucro();
+    } catch (e) {
+      mostrarToast('Não consegui guardar: ' + (e.message || e));
+      btnGuardar.disabled = false;
+    }
+  });
+}
+
+/* ===== Alerta de saldo baixo ===== */
+async function carregarAlertas(){
+  try {
+    const res = await fetch(`${API_BASE}/api/alertas`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const d = await res.json();
+    const box = document.getElementById('bannerSaldo');
+    const baixos = (d.sims || []).filter(s => s.baixo);
+    if (d.limiteMB > 0 && baixos.length) {
+      document.getElementById('txtBannerSaldo').textContent =
+        baixos.map(s => `${s.nome} ${s.sim}: ${s.mb} MB`).join(' · ') + ` (limite ${d.limiteMB} MB)`;
+      box.hidden = false;
+    } else {
+      box.hidden = true;
+    }
+  } catch (e) {
+    console.error('Erro ao carregar alertas:', e);
+  }
+}
+
+async function abrirAlertas(){
+  abrirSheet('alertas', 'Alerta de saldo', 'Avisa quando um SIM fica com poucos MB');
+  try {
+    const res = await fetch(`${API_BASE}/api/alertas`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    renderAlertas(await res.json());
+  } catch (e) {
+    sheetBody.innerHTML = `<div class="empty">Erro: ${esc(e.message || e)}</div>`;
+  }
+}
+
+function renderAlertas(d){
+  const linhas = (d.sims || []).map(s => `
+    <div class="pkg">
+      <div class="info">${esc(s.nome)} · ${esc(s.sim)}<small>${esc(s.mb)} MB</small></div>
+      <span class="badge ${d.limiteMB > 0 ? (s.baixo ? 'prep' : 'env') : ''}">${d.limiteMB > 0 ? (s.baixo ? 'Baixo' : 'OK') : '—'}</span>
+    </div>`).join('');
+
+  sheetBody.innerHTML = `
+    <label class="field">
+      <span>Avisar quando um SIM ficar abaixo de (MB)</span>
+      <input id="inpLimiteSaldo" type="number" inputmode="numeric" min="0" step="1" value="${d.limiteMB || ''}" placeholder="ex.: 500" aria-label="Limite de saldo em MB">
+    </label>
+    <button class="btn-main" id="btnGuardarAlerta">Guardar</button>
+    <p class="note">Quando um SIM descer do limite, o painel mostra um aviso e o bot manda uma mensagem ao grupo admin, uma vez por SIM. Se o saldo voltar a subir, o aviso reinicia. Vazio ou 0 desliga. SIMs sem megas e sem limite de envio ficam de fora. Para receber o aviso como notificação no telemóvel, ativa em <b>Notificações</b> no menu.</p>
+    <div class="sec">Saldo atual dos SIMs</div>
+    ${linhas || '<div class="empty">Nenhum SIM configurado</div>'}`;
+
+  document.getElementById('btnGuardarAlerta').addEventListener('click', async () => {
+    const btn = document.getElementById('btnGuardarAlerta');
+    const v = document.getElementById('inpLimiteSaldo').value;
+    const n = v === '' ? 0 : Number(v);
+    if (!Number.isFinite(n) || n < 0) { mostrarToast('Valor inválido'); return; }
+    btn.disabled = true;
+    try {
+      const res = await fetch(`${API_BASE}/api/alertas`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ limiteMB: n })
+      });
+      const data = await res.json();
+      if (!res.ok || data.erro) throw new Error(data.erro || `HTTP ${res.status}`);
+      mostrarToast(n > 0 ? `Alerta abaixo de ${n} MB` : 'Alerta desligado');
+      fecharSheet();
+      carregarAlertas();
+    } catch (e) {
+      mostrarToast('Não consegui guardar: ' + (e.message || e));
+      btn.disabled = false;
+    }
+  });
+}
+document.getElementById('bannerSaldo').addEventListener('click', abrirAlertas);
+
+/* ===== Notificações push neste telemóvel ===== */
+const suportaPush = () => 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+
+function chaveParaBytes(base64){
+  const pad = '='.repeat((4 - base64.length % 4) % 4);
+  const b64 = (base64 + pad).replace(/-/g, '+').replace(/_/g, '/');
+  const raw = atob(b64);
+  return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
+}
+
+async function pedirJSON(url, opcoes){
+  const res = await fetch(url, opcoes);
+  const data = await res.json();
+  if (!res.ok || data.erro) throw new Error(data.erro || `HTTP ${res.status}`);
+  return data;
+}
+
+async function ativarPush(pin){
+  const reg = await navigator.serviceWorker.register('/sw.js');
+  await navigator.serviceWorker.ready;
+  const perm = await Notification.requestPermission();
+  if (perm !== 'granted') throw new Error('Permissão de notificações não concedida');
+  const { publicKey } = await pedirJSON(`${API_BASE}/api/push-chave`);
+  let sub = await reg.pushManager.getSubscription();
+  if (!sub) {
+    sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: chaveParaBytes(publicKey) });
+  }
+  await pedirJSON(`${API_BASE}/api/push-inscrever`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ subscription: sub.toJSON(), pin })
+  });
+}
+
+async function montarPush(){
+  const box = document.getElementById('boxPush');
+  if (!box) return;
+  if (!suportaPush()) {
+    box.innerHTML = '<p class="note" style="margin:0">Este app não suporta notificações push. Abre o painel no Chrome e usa "Instalar app" no menu para receber avisos.</p>';
+    return;
+  }
+  if (Notification.permission === 'denied') {
+    box.innerHTML = '<p class="note" style="margin:0">As notificações estão bloqueadas nas definições do Android para este app. Ativa-as lá e volta aqui.</p>';
+    return;
+  }
+  let ativo = false;
+  try {
+    const reg = await navigator.serviceWorker.getRegistration('/');
+    ativo = !!(reg && await reg.pushManager.getSubscription());
+  } catch (e) { /* segue como não ativo */ }
+  if (!document.getElementById('boxPush')) return;
+
+  box.innerHTML = `
+    <p class="note" style="margin:0 0 8px">${ativo ? '✅ Ativas neste telemóvel.' : 'Ainda não ativadas neste telemóvel.'}</p>
+    <label class="field">
+      <span>PIN</span>
+      <input id="inpPinPush" type="password" inputmode="numeric" autocomplete="off" placeholder="PIN" aria-label="PIN">
+    </label>
+    <div class="btn-row">
+      <button class="btn-main" id="btnAtivarPush">${ativo ? 'Reativar' : 'Ativar'}</button>
+      <button class="btn-main ghost" id="btnTestePush">Enviar teste</button>
+    </div>`;
+
+  const lerPin = () => {
+    const pin = document.getElementById('inpPinPush').value;
+    if (!pin) mostrarToast('Escreve o PIN');
+    return pin;
+  };
+
+  document.getElementById('btnAtivarPush').addEventListener('click', async () => {
+    const pin = lerPin(); if (!pin) return;
+    try {
+      await ativarPush(pin);
+      mostrarToast('Notificações ativadas');
+      montarPush();
+    } catch (e) {
+      mostrarToast(e.message || String(e));
+    }
+  });
+
+  document.getElementById('btnTestePush').addEventListener('click', async () => {
+    const pin = lerPin(); if (!pin) return;
+    try {
+      await pedirJSON(`${API_BASE}/api/push-teste`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pin })
+      });
+      mostrarToast('Teste enviado. Deve aparecer numa notificação.');
+    } catch (e) {
+      mostrarToast(e.message || String(e));
+    }
+  });
+}
+
+function abrirNotificacoes(){
+  abrirSheet('notificacoes', 'Notificações', 'Receber os avisos como notificação neste telemóvel');
+  sheetBody.innerHTML = '<div id="boxPush"><p class="note" style="margin:0">a verificar…</p></div>';
+  montarPush();
+}
 
 function carregarTudo(){
   carregarStatus();
   carregarResumo();
   carregarEventos();
+  carregarLucro();
+  carregarAlertas();
 }
 
 carregarTudo();
