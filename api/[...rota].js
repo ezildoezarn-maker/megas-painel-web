@@ -1,7 +1,7 @@
 // Um único proxy para todas as rotas /api/* do bot.
 // A Vercel (plano Hobby) só aceita 12 funções por projeto, por isso
 // em vez de um ficheiro por rota usamos este.
-const BOT_URL = process.env.BOT_URL || "http://node.modz.ink:25504";
+const BOT_URL = process.env.BOT_URL || "http://node.modz.ink:25503";
 
 // Rotas que o painel pode chamar. Ao criar uma rota nova no bot, acrescenta aqui.
 const PERMITIDAS = new Set([
