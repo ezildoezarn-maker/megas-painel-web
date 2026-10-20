@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contas e alugueres — Megas Express</title>
+<link rel="manifest" href="/manifest.json">
+<style>
+  :root{
+    --bg:#0d1117;--panel:#161b22;--panel2:#1c2230;--line:#262d3a;
+    --green:#2ecc71;--red:#e74c3c;--amber:#f5a623;
+    --text:#e8ecf1;--sub:#8b96a5;--accent:#3ddc84;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);font-family:'Segoe UI',Roboto,-apple-system,sans-serif;color:var(--text);
+    min-height:100vh;display:flex;justify-content:center;padding:24px 14px 40px;}
+  .wrap{width:100%;max-width:420px;}
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding-bottom:14px;
+    border-bottom:1px solid var(--line);margin-bottom:16px;}
+  .topbar h1{font-size:18px;font-weight:600;}
+  .topbar a{font-size:12px;color:var(--accent);text-decoration:none;}
+  .card{background:linear-gradient(160deg,var(--panel2),var(--panel));border:1px solid var(--line);
+    border-radius:14px;padding:14px;margin-bottom:12px;}
+  h2{font-size:14px;font-weight:600;margin-bottom:10px;}
+  label{display:block;font-size:11px;color:var(--sub);margin:10px 0 5px;}
+  input,select{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:9px;color:var(--text);
+    font-size:15px;padding:10px;}
+  .dois{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  button{font:inherit;cursor:pointer;}
+  .btn{width:100%;margin-top:14px;background:var(--accent);color:#0d1117;font-weight:600;border:0;border-radius:9px;padding:11px;}
+  .mini{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:12px;}
+  .mini.ok{border-color:var(--accent);color:var(--accent);}
+  .mini.mau{border-color:var(--red);color:#ff8a80;}
+  button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+  .nome{font-weight:600;font-size:15px;}
+  .num{color:var(--sub);font-size:12px;margin-top:2px;}
+  .perfil{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px;
+    padding-top:10px;border-top:1px solid var(--line);}
+  .perfil .t{font-size:13px;}
+  .perfil .t small{display:block;font-size:11px;margin-top:2px;}
+  .on{color:var(--accent);} .off{color:var(--red);} .warn{color:var(--amber);}
+  .acoes{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;padding-top:10px;border-top:1px solid var(--line);}
+  .tag{font-size:10px;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:2px 6px;color:var(--sub);margin-left:6px;vertical-align:middle;}
+  .vazio{color:var(--sub);font-size:13px;text-align:center;padding:20px 0;}
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--panel2);border:1px solid var(--line);
+    padding:10px 16px;border-radius:10px;font-size:13px;display:none;max-width:90%;z-index:10;}
+</style>
+<script src="/acesso.js"></script>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <h1>Contas e alugueres</h1>
+    <a href="/index.html">← Painel</a>
+  </div>
+
+  <div id="negado" class="card" hidden>
+    <h2>Só o administrador</h2>
+    <p style="color:var(--sub);font-size:13px">Esta página é só para o dono do painel.</p>
+  </div>
+
+  <div id="conteudo" hidden>
+    <div class="card">
+      <h2>Cadastrar ou atualizar pessoa</h2>
+      <label for="nome">Nome</label>
+      <input id="nome" placeholder="Ex.: João">
+      <label for="numero">Número de WhatsApp</label>
+      <input id="numero" inputmode="numeric" placeholder="84 123 4567">
+      <label for="pin">PIN (4 a 8 números) — deixe vazio para manter o atual</label>
+      <input id="pin" inputmode="numeric" placeholder="••••">
+      <div class="dois">
+        <div><label for="perfil">Aluguer de</label>
+          <select id="perfil"><option value="">— nenhum —</option><option value="fornecedor">Fornecedor</option><option value="revendedor">Revendedor</option></select></div>
+        <div><label for="dias">Dias</label><input id="dias" inputmode="numeric" value="30"></div>
+      </div>
+      <button class="btn" id="btnSalvar">Guardar</button>
+    </div>
+
+    <div id="lista"></div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+  var A=window.__mxAcesso; var s=A&&A.ler();
+  if(!s) return;
+  if(!s.admin){ document.getElementById('negado').hidden=false; return; }
+  document.getElementById('conteudo').hidden=false;
+  var PERFIS={fornecedor:'Fornecedor',revendedor:'Revendedor'};
+  var lista=document.getElementById('lista');
+
+  function toast(t){ var e=document.getElementById('toast'); e.textContent=t; e.style.display='block'; clearTimeout(toast.t); toast.t=setTimeout(function(){e.style.display='none';},3500); }
+  function esc(x){ return String(x==null?'':x).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+  function data(iso){ return new Date(iso).toLocaleDateString('pt-MZ',{timeZone:'Africa/Maputo',day:'2-digit',month:'2-digit',year:'numeric'}); }
+
+  async function acao(corpo){
+    var r=await fetch('/api/contas-acao',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(corpo)});
+    var j={}; try{ j=await r.json(); }catch(e){}
+    if(!r.ok||!j.ok){ toast(j.msg||'Não foi possível concluir.'); return null; }
+    desenhar(j.contas); return j;
+  }
+
+  function linhaPerfil(c,k){
+    var p=c.perfis[k]; var t;
+    if(c.admin) t='<span class="on">Sempre liberado (dono)</span>';
+    else if(!p.existe) t='<span class="off">Nunca pagou</span>';
+    else if(p.ativo) t='<span class="'+(p.dias<=3?'warn':'on')+'">Ativo — '+p.dias+' dia(s), até '+data(p.ate)+'</span>';
+    else t='<span class="off">Expirou em '+data(p.ate)+'</span>';
+    var bt=c.admin?'':'<div style="display:flex;gap:6px;flex-shrink:0">'+
+      '<button class="mini ok" data-a="pagar" data-n="'+c.numero+'" data-p="'+k+'" data-d="30">+30 dias</button>'+
+      '<button class="mini" data-a="pagarx" data-n="'+c.numero+'" data-p="'+k+'">Dias…</button>'+
+      (p.ativo?'<button class="mini mau" data-a="revogar" data-n="'+c.numero+'" data-p="'+k+'">Cortar</button>':'')+'</div>';
+    return '<div class="perfil"><div class="t">'+PERFIS[k]+'<small>'+t+'</small></div>'+bt+'</div>';
+  }
+
+  function desenhar(contas){
+    if(!contas.length){ lista.innerHTML='<div class="vazio">Ainda não há contas.</div>'; return; }
+    lista.innerHTML=contas.map(function(c){
+      return '<div class="card"><div class="nome">'+esc(c.nome||'Sem nome')+(c.admin?'<span class="tag">dono</span>':'')+(c.ativa?'':'<span class="tag" style="color:#ff8a80">bloqueada</span>')+'</div>'+
+        '<div class="num">'+esc(c.numero)+'</div>'+
+        linhaPerfil(c,'fornecedor')+linhaPerfil(c,'revendedor')+
+        '<div class="acoes">'+
+          '<button class="mini" data-a="pin" data-n="'+c.numero+'">Mudar PIN</button>'+
+          (c.admin?'':(c.ativa?'<button class="mini mau" data-a="bloquear" data-n="'+c.numero+'">Bloquear</button>':'<button class="mini ok" data-a="desbloquear" data-n="'+c.numero+'">Desbloquear</button>')+
+          '<button class="mini mau" data-a="remover" data-n="'+c.numero+'">Apagar</button>')+
+        '</div></div>';
+    }).join('');
+  }
+
+  lista.addEventListener('click',async function(ev){
+    var b=ev.target.closest('button[data-a]'); if(!b) return;
+    var a=b.dataset.a, n=b.dataset.n, p=b.dataset.p;
+    if(a==='pagar'){ var j=await acao({acao:'pagar',numero:n,perfil:p,dias:Number(b.dataset.d)}); if(j) toast('Aluguer de '+PERFIS[p]+' atualizado.'); }
+    else if(a==='pagarx'){ var d=prompt('Quantos dias de '+PERFIS[p]+'?','30'); if(!d) return; var j2=await acao({acao:'pagar',numero:n,perfil:p,dias:Number(d)}); if(j2) toast('Aluguer atualizado.'); }
+    else if(a==='revogar'){ if(confirm('Cortar já o acesso de '+PERFIS[p]+' desta pessoa?')) acao({acao:'revogar',numero:n,perfil:p}); }
+    else if(a==='bloquear'){ if(confirm('Bloquear toda a conta?')) acao({acao:'bloquear',numero:n}); }
+    else if(a==='desbloquear'){ acao({acao:'desbloquear',numero:n}); }
+    else if(a==='remover'){ if(confirm('Apagar esta conta de vez?')) acao({acao:'remover',numero:n}); }
+    else if(a==='pin'){ var pin=prompt('Novo PIN (4 a 8 números):'); if(!pin) return; var j3=await acao({acao:'salvar',numero:n,pin:pin}); if(j3) toast('PIN atualizado.'); }
+  });
+
+  document.getElementById('btnSalvar').addEventListener('click',async function(){
+    var corpo={acao:'salvar',numero:document.getElementById('numero').value,nome:document.getElementById('nome').value,pin:document.getElementById('pin').value,perfil:document.getElementById('perfil').value,dias:Number(document.getElementById('dias').value)};
+    if(!corpo.numero){ toast('Escreva o número.'); return; }
+    var j=await acao(corpo);
+    if(j){ toast('Guardado.'); document.getElementById('pin').value=''; }
+  });
+
+  (async function(){
+    try{
+      var r=await fetch('/api/contas'); var j=await r.json();
+      if(r.ok&&j.ok) desenhar(j.contas); else lista.innerHTML='<div class="vazio">'+esc(j.msg||'Não foi possível carregar.')+'</div>';
+    }catch(e){ lista.innerHTML='<div class="vazio">Sem ligação ao servidor.</div>'; }
+  })();
+})();
+</script>
+</body>
+</html>

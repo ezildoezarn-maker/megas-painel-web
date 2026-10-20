@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Entrar — Megas Express</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0d1117">
+<style>
+  :root{
+    --bg:#0d1117;--panel:#161b22;--panel2:#1c2230;--line:#262d3a;
+    --green:#2ecc71;--red:#e74c3c;--amber:#f5a623;
+    --text:#e8ecf1;--sub:#8b96a5;--accent:#3ddc84;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);font-family:'Segoe UI',Roboto,-apple-system,sans-serif;color:var(--text);
+    min-height:100vh;display:flex;justify-content:center;align-items:center;padding:24px 16px;}
+  .wrap{width:100%;max-width:400px;}
+  h1{font-size:22px;font-weight:600;text-align:center;}
+  .sub{color:var(--sub);font-size:13px;text-align:center;margin:6px 0 22px;}
+  .perfis{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;}
+  .perfil{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 10px;
+    text-align:center;cursor:pointer;color:var(--text);font:inherit;}
+  .perfil .ico{font-size:28px;display:block;margin-bottom:6px;}
+  .perfil b{display:block;font-size:15px;}
+  .perfil small{display:block;color:var(--sub);font-size:11px;margin-top:3px;line-height:1.35;}
+  .perfil[aria-pressed="true"]{border-color:var(--accent);background:linear-gradient(160deg,var(--panel2),var(--panel));}
+  .perfil:focus-visible,input:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+  label{display:block;font-size:12px;color:var(--sub);margin:12px 0 6px;}
+  input{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:10px;color:var(--text);
+    font-size:16px;padding:12px;}
+  .btn{width:100%;margin-top:18px;background:var(--accent);color:#0d1117;font-weight:600;font-size:15px;
+    border:0;border-radius:10px;padding:13px;cursor:pointer;}
+  .btn[disabled]{opacity:.6;cursor:default;}
+  .msg{margin-top:14px;font-size:13px;border-radius:10px;padding:11px 12px;display:none;line-height:1.45;}
+  .msg.erro{display:block;background:#2a1414;border:1px solid var(--red);color:#ff8a80;}
+  .msg.aviso{display:block;background:#2a2110;border:1px solid var(--amber);color:var(--amber);}
+  .pagar{display:none;margin-top:10px;text-align:center;background:var(--panel);border:1px solid var(--accent);
+    color:var(--accent);text-decoration:none;border-radius:10px;padding:11px;font-size:14px;font-weight:600;}
+  .rodape{margin-top:22px;text-align:center;font-size:11px;color:var(--sub);}
+</style>
+<script src="/acesso.js"></script>
+</head>
+<body>
+<div class="wrap">
+  <h1>Megas Express</h1>
+  <p class="sub">Escolha como vai usar o painel</p>
+
+  <div class="perfis" role="group" aria-label="Perfil">
+    <button type="button" class="perfil" id="pFornecedor" data-perfil="fornecedor" aria-pressed="false">
+      <span class="ico" aria-hidden="true">🏭</span><b>Fornecedor</b><small>Vende megas e saldo a revendedores</small>
+    </button>
+    <button type="button" class="perfil" id="pRevendedor" data-perfil="revendedor" aria-pressed="false">
+      <span class="ico" aria-hidden="true">🛒</span><b>Revendedor</b><small>Vende aos clientes finais</small>
+    </button>
+  </div>
+
+  <form id="form" autocomplete="off">
+    <label for="numero">Número de WhatsApp</label>
+    <input id="numero" inputmode="numeric" placeholder="84 123 4567" autocomplete="username">
+    <label for="pin">PIN</label>
+    <input id="pin" type="password" inputmode="numeric" placeholder="••••••" autocomplete="current-password">
+    <button class="btn" id="btn" type="submit">Entrar</button>
+  </form>
+
+  <div class="msg" id="msg" role="alert"></div>
+  <a class="pagar" id="pagar" target="_blank" rel="noopener">Pagar o aluguer pelo WhatsApp</a>
+  <p class="rodape">Sem conta? Fale com o administrador para ser cadastrado.</p>
+</div>
+
+<script>
+(function(){
+  var WHATSAPP_SUPORTE='258875189774';
+  var A=window.__mxAcesso;
+  var perfil=null;
+  var msg=document.getElementById('msg'), pagar=document.getElementById('pagar'), btn=document.getElementById('btn');
+
+  // já tem sessão válida? segue para o painel
+  var s=A.ler();
+  if(s&&s.token&&(!s.exp||s.exp>Date.now())){ location.replace('/index.html'); return; }
+
+  function mostrar(tipo,t){ msg.className='msg '+tipo; msg.textContent=t; }
+  function limparMsg(){ msg.className='msg'; msg.textContent=''; pagar.style.display='none'; }
+
+  var m=new URLSearchParams(location.search).get('m'); if(m) mostrar('aviso',m);
+
+  try{ var ult=localStorage.getItem('mx_ultimo'); if(ult){ ult=JSON.parse(ult); document.getElementById('numero').value=ult.numero||''; if(ult.perfil) escolher(ult.perfil); } }catch(e){}
+
+  function escolher(p){
+    perfil=p;
+    document.querySelectorAll('.perfil').forEach(function(b){ b.setAttribute('aria-pressed', b.dataset.perfil===p?'true':'false'); });
+    limparMsg();
+  }
+  document.querySelectorAll('.perfil').forEach(function(b){ b.addEventListener('click',function(){ escolher(b.dataset.perfil); }); });
+
+  document.getElementById('form').addEventListener('submit',async function(ev){
+    ev.preventDefault(); limparMsg();
+    if(!perfil){ mostrar('erro','Escolha primeiro: Fornecedor ou Revendedor.'); return; }
+    var numero=document.getElementById('numero').value.trim(), pin=document.getElementById('pin').value;
+    if(!numero||!pin){ mostrar('erro','Preencha o número e o PIN.'); return; }
+    btn.disabled=true; btn.textContent='A entrar…';
+    try{
+      var r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({numero:numero,pin:pin,perfil:perfil})});
+      var j={}; try{ j=await r.json(); }catch(e){}
+      if(r.ok&&j.ok){
+        try{ localStorage.setItem('mx_ultimo',JSON.stringify({numero:numero,perfil:perfil})); }catch(e){}
+        A.guardar({token:j.token,exp:j.exp,perfil:j.perfil,perfilNome:j.perfilNome,numero:j.numero,nome:j.nome,admin:j.admin,ate:j.ate,dias:j.dias});
+        location.replace('/index.html'); return;
+      }
+      if(j.erro==='aluguer'){
+        mostrar('erro','🔒 '+j.msg);
+        var nome=A.PERFIS[perfil]||perfil;
+        pagar.href='https://wa.me/'+WHATSAPP_SUPORTE+'?text='+encodeURIComponent('Olá, quero pagar o aluguer de '+nome+' (número '+numero+')');
+        pagar.style.display='block';
+      } else if(j.erro==='sem_conta'){
+        mostrar('erro','🚫 '+j.msg);
+      } else if(r.status===502||!j.erro){
+        mostrar('erro','Não consegui falar com o servidor. Tente de novo daqui a pouco.');
+      } else {
+        mostrar('erro',j.msg||'Não foi possível entrar.');
+      }
+    }catch(e){
+      mostrar('erro','Sem ligação ao servidor.');
+    }finally{
+      btn.disabled=false; btn.textContent='Entrar';
+    }
+  });
+})();
+</script>
+</body>
+</html>
